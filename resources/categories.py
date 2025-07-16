@@ -37,8 +37,14 @@ def update_category(id):
     category.name = data['name']
     db.session.commit()
     return jsonify({'id': category.id, 'name': category.name})
+    
 
-
+@app.route('/categories/<int:id>', methods=['DELETE'])
+def delete_category(id):
+    category = Category.query.get_or_404(id)
+    db.session.delete(category)
+    db.session.commit()
+    return jsonify({'message': 'Category deleted'})
 
 if __name__ == '__main__':
     app.run(debug=True)
