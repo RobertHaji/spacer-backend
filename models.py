@@ -32,6 +32,10 @@ class Space(db.Model, SerializerMixin):
     )
 
 
+    categories = db.relationship("Category", back_populates = "space")
+    bookings = db.relationship("Booking", back_populates = "space")
+
+
 
 class Bookings(db.Model, SerializerMixin):
     __tablename__ = "bookings"
