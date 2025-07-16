@@ -17,6 +17,12 @@ class User(db.Model, SerializerMixin):
     password_hash = db.Column(db.VARCHAR, nullable=False)
     created_at = db.Column(db.Timestamp, default=datetime.now())
 
+    bookings = db.relationship("Booking", backref="user")
+    categories = db.relationship("Category", back_populates="user")
+
+    serialize_rules = ("-bookings.user", "-categories.user")
+
+
 class Space(db.Model, SerializerMixin):
 
     __tablename__ = "spaces"
@@ -33,11 +39,13 @@ class Space(db.Model, SerializerMixin):
         db.Integer, db.ForeignKey("categories.id", ondelete="cascade"), nullable=False
     )
 
-    categories = db.relationship("Category", back_populates = "space")
-    bookings = db.relationship("Booking", back_populates = "space")
+    bookings = db.relationship("Booking", backref="space")
+    categories = db.relationship("Category", back_populates="spaces")
+
+    serialize_rules = ("-bookings.space", "-category.spaces")
 
 
-class Bookings(db.Model, SerializerMixin):
+class Booking(db.Model, SerializerMixin):
     __tablename__ = "bookings"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
@@ -45,10 +53,9 @@ class Bookings(db.Model, SerializerMixin):
     number_of_guests = db.Column(db.Integer, nullable=False)
     date_of_booking = db.Column(db.DateTime, default=datetime.now())
     total_amount = db.Column(db.Numeric(10, 2), nullable=False)
-    
-    user = db.relationship("User", backref="bookings")
-    space = db.relationship("Space", backref="bookings")
 
+    serialize_rules = ("-user.bookings", "-space.bookings")
+    
 class Category(db.Model, SerializerMixin):
     __tablename__ = "categories"
 
@@ -57,7 +64,9 @@ class Category(db.Model, SerializerMixin):
     image_url = db.Column(db.String(500), nullable=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+
     user = db.relationship("User", back_populates="categories")
+    spaces = db.relationship("Space", backref="category")
 
     serialize_rules = ("-user.categories",)    
     
