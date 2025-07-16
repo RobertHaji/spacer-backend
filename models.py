@@ -69,4 +69,38 @@ class Category(db.Model, SerializerMixin):
     spaces = db.relationship("Space", backref="category")
 
     serialize_rules = ("-user.categories",)    
+
+
+
+class Payment(db.Model, SerializerMixin):
+    __tablename__ = "payments"
+
+    id = db.Column(db.Integer, primary_key=True)
+    booking_id = db.Column(db.Integer, db.ForeignKey("bookings.id"), nullable=False, unique=True)
+    amount = db.Column(db.Numeric(10, 2), nullable=False)
+    payment_mode = db.Column(db.String(50), nullable=False)  
+    payment_status = db.Column(db.String(20), nullable=False, default="pending")  
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    serialize_rules = ("-booking.payment",)
+
+
+    
+
+class Image(db.Model, SerializerMixin):
+    __tablename__ = "images"
+
+    id = db.Column(db.Integer, primary_key=True)
+    space_id = db.Column(db.Integer, db.ForeignKey("spaces.id"), nullable=False)
+    url = db.Column(db.String(500), nullable=False)
+    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    serialize_rules = ("-space.images",)
+
+   
+
+
+   
+   
+
     
