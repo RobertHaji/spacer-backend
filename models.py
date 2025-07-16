@@ -51,6 +51,7 @@ class Space(db.Model, SerializerMixin):
 
     bookings = db.relationship("Booking", backref="space")
     category = db.relationship("Category", back_populates="spaces")
+    images = db.relationship("Image", backref="space", cascade="all, delete-orphan")
 
     serialize_rules = ("-bookings.space", "-category.spaces")
 
