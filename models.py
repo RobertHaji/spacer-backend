@@ -44,11 +44,10 @@ class Bookings(db.Model, SerializerMixin):
     space_id = db.Column(db.Integer, db.ForeignKey("spaces.id"), nullable=False)
     number_of_guests = db.Column(db.Integer, nullable=False)
     date_of_booking = db.Column(db.DateTime, default=datetime.now())
-    total_amount = db.Column(db.Numeric(10,2), nullable=False)
+    total_amount = db.Column(db.Numeric(10, 2), nullable=False)
     
     user = db.relationship("User", backref="bookings")
     space = db.relationship("Space", backref="bookings")
-    total_amount = db.Column(db.Integer, nullable=False)
 
 class Category(db.Model, SerializerMixin):
     __tablename__ = "categories"
