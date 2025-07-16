@@ -48,7 +48,6 @@ class Bookings(db.Model, SerializerMixin):
     
     user = db.relationship("User", backref="bookings")
     space = db.relationship("Space", backref="bookings")
-    total_amount = db.Column(db.Integer, nullable=False)
 
 class Category(db.Model, SerializerMixin):
     __tablename__ = "categories"
