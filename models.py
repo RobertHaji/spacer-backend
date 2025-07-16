@@ -33,6 +33,10 @@ class Space(db.Model, SerializerMixin):
         db.Integer, db.ForeignKey("categories.id", ondelete="cascade"), nullable=False
     )
 
+    categories = db.relationship("Category", back_populates = "space")
+    bookings = db.relationship("Booking", back_populates = "space")
+
+
 class Bookings(db.Model, SerializerMixin):
     __tablename__ = "bookings"
     id = db.Column(db.Integer, primary_key=True)
