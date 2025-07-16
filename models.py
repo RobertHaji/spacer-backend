@@ -2,6 +2,8 @@ from sqlalchemy import MetaData
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
 from datetime import datetime
+from sqlalchemy import Numeric
+
 
 metadata = MetaData()
 db = SQLAlchemy(metadata=metadata)
@@ -13,7 +15,7 @@ class User(db.Model, SerializerMixin):
     email = db.Column(db.VARCHAR, nullable=False)
     role = db.Column(db.Enum("admin", "user"), nullable=False, server_default="user")
     password_hash = db.Column(db.VARCHAR, nullable=False)
-    created_at = db.Column(db.Timestamp, default=datetime.now()
+    created_at = db.Column(db.Timestamp, default=datetime.now())
 
 class Space(db.Model, SerializerMixin):
 
@@ -31,10 +33,8 @@ class Space(db.Model, SerializerMixin):
         db.Integer, db.ForeignKey("categories.id", ondelete="cascade"), nullable=False
     )
 
-
     categories = db.relationship("Category", back_populates = "space")
     bookings = db.relationship("Booking", back_populates = "space")
-
 
 
 class Bookings(db.Model, SerializerMixin):
@@ -44,5 +44,21 @@ class Bookings(db.Model, SerializerMixin):
     space_id = db.Column(db.Integer, db.ForeignKey("spaces.id"), nullable=False)
     number_of_guests = db.Column(db.Integer, nullable=False)
     date_of_booking = db.Column(db.DateTime, default=datetime.now())
+    total_amount = db.Column(db.Numeric(10,2), nullable=False)
+    
+    user = db.relationship("User", backref="bookings")
+    space = db.relationship("Space", backref="bookings")
     total_amount = db.Column(db.Integer, nullable=False)
+
+class Category(db.Model, SerializerMixin):
+    __tablename__ = "categories"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(255), nullable=False)
+    image_url = db.Column(db.String(500), nullable=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    user = db.relationship("User", back_populates="categories")
+
+    serialize_rules = ("-user.categories",)    
     
