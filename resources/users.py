@@ -1,5 +1,6 @@
 from flask_restful import Resource, reqparse
 from flask_bcrypt import generate_password_hash, check_password_hash
+from flask_jwt_extended import create_access_token
 
 from models import db, User
 
@@ -20,8 +21,13 @@ class SignInResource(Resource):
         # validate password
         if check_password_hash(user.password_hash, data["password_hash"]):
             # then generate access token
+            access_token = create_access_token(identity=user.id)
 
-            return {"message": "login successfull", "user": user.to_dict()}, 201
+            return {
+                "message": "login successfull",
+                "access_token": access_token,
+                "user": user.to_dict(),
+            }, 201
         else:
             return {"message": "invalid email or password"}, 403
 
@@ -54,10 +60,15 @@ class SignUpResource(Resource):
         db.session.commit()
 
         # generate access Token
+        access_token = create_access_token(identity=user.id)
 
         # send email
 
-        return {"message": "account created successfully", "user": user.to_dict()}, 201
+        return {
+            "message": "account created successfully",
+            "access_token": access_token,
+            "user": user.to_dict(),
+        }, 201
 
 
 class UserResource(Resource):
