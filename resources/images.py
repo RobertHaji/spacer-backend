@@ -39,18 +39,19 @@ class ImageResource(Resource):
             "images": [img.serialize() if hasattr(img, "serialize") else {"id": img.id, "url": img.url} for img in images]
         }, 200
 
-    def delete(self, image_id):
-        if not image_id:
+    def delete(self, id):  # Correctly aligned now
+        if not id:
             return {"error": "Missing image ID in URL"}, 400
 
-        image = Image.query.get(image_id)
+        image = Image.query.get(id)
         if not image:
-            return {"error": f"Image with id {image_id} not found"}, 404
+            return {"error": f"Image with id {id} not found"}, 404
 
         try:
             db.session.delete(image)
             db.session.commit()
-            return {"message": f"Image with ID {image_id} deleted successfully"}, 200
+            return {"message": f"Image with ID {id} deleted successfully"}, 200
         except Exception as e:
             db.session.rollback()
             return {"error": str(e)}, 500
+
