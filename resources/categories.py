@@ -1,50 +1,68 @@
-from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
+from flask import jsonify
+from flask_restful import Resource, reqparse
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from models import Category, db
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///categories.db'
-db = SQLAlchemy(app)
+class CategoryResource(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument("name", required=True, help="Category name is required")
 
-class Category(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), nullable=False)
+    @jwt_required()
+    def get(self, id=None):
+        user_id = get_jwt_identity()
 
-with app.app_context():
-    db.create_all()
+        if id is None:
+            categories = Category.query.filter_by(user_id=user_id).all()
+            return jsonify([category.to_dict() for category in categories])
+        else:
+            category = Category.query.filter_by(id=id, user_id=user_id).first()
+            if category is None:
+                return {"message": "Category not found"}, 404
+            return jsonify(category.to_dict())
 
-@app.route('/categories', methods=['POST'])
-def create_category():
-    data = request.json
-    new_category = Category(name=data['name'])
-    db.session.add(new_category)
-    db.session.commit()
-    return jsonify({'id': new_category.id, 'name': new_category.name}), 201
+    @jwt_required()
+    def post(self):
+        user_id = get_jwt_identity()
+        data = self.parser.parse_args()
 
-@app.route('/categories', methods=['GET'])
-def get_categories():
-    categories = Category.query.all()
-    return jsonify([{'id': c.id, 'name': c.name} for c in categories])
+        if not data.get("name"):
+            return {"message": "Category name is required"}, 400
 
-@app.route('/categories/<int:id>', methods=['GET'])
-def get_category(id):
-    category = Category.query.get_or_404(id)
-    return jsonify({'id': category.id, 'name': category.name})
+        category = Category(name=data["name"], user_id=user_id)
+        db.session.add(category)
+        db.session.commit()
 
-@app.route('/categories/<int:id>', methods=['PUT'])
-def update_category(id):
-    category = Category.query.get_or_404(id)
-    data = request.json
-    category.name = data['name']
-    db.session.commit()
-    return jsonify({'id': category.id, 'name': category.name})
-    
+        return {"message": "Category created successfully"}, 201
 
-@app.route('/categories/<int:id>', methods=['DELETE'])
-def delete_category(id):
-    category = Category.query.get_or_404(id)
-    db.session.delete(category)
-    db.session.commit()
-    return jsonify({'message': 'Category deleted'})
+    @jwt_required()
+    def patch(self, id):
+        user_id = get_jwt_identity()
+        data = self.parser.parse_args()
 
-if __name__ == '__main__':
-    app.run(debug=True)
+        category = Category.query.filter_by(id=id, user_id=user_id).first()
+        if category is None:
+            return {"message": "Category not found"}, 404
+
+        if not data.get("name"):
+            return {"message": "Category name is required"}, 400
+
+        category.name = data["name"]
+        db.session.commit()
+
+        return {
+            "message": "Category updated successfully",
+            "category": category.to_dict()
+        }, 200
+
+    @jwt_required()
+    def delete(self, id):
+        user_id = get_jwt_identity()
+        category = Category.query.filter_by(id=id, user_id=user_id).first()
+
+        if category is None:
+            return {"message": "Category not found"}, 404
+
+        db.session.delete(category)
+        db.session.commit()
+
+        return {"message": "Category deleted successfully"}, 200
