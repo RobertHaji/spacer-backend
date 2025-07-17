@@ -27,6 +27,7 @@ class SignInResource(Resource):
     
 class SignUpResource(Resource):
     parser = reqparse.RequestParser()
+
     parser.add_argument("full_name", required=True, help="full_name is required")
     parser.add_argument("email", required=True, help="email is required")
     parser.add_argument("password", required=True, help="password is required")
@@ -51,9 +52,9 @@ class SignUpResource(Resource):
         #send email
 
         return{
-            "message": "account created successful",
+            "message": "account created successfully",
             "user": user.to_dict()
-        }
+        }, 201
     
 
 class UserResource(Resource):
