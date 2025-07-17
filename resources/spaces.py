@@ -1,8 +1,7 @@
 from flask_restful import Resource, reqparse
+from models import db, Space, Category
 
-from models import db, Space
-
-class SpaceRescource (Resource):
+class SpaceResource (Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('name', type=str, required=True, help="Name is required")
     parser.add_argument('owner_name', type=str, required=True, help="Owner name is required")
@@ -25,9 +24,21 @@ class SpaceRescource (Resource):
 
     def post(self):
         data = self.parser.parse_args()
+
+        # Name and owner_name validation(must not be empty) 
+        if not data["name"].strip():
+            return {"error": "Name cannot be empty"}, 400
+        if not data["owner_name"].strip():
+            return {"error": "Owner name cannot be empty"}, 400
+        
         # Rent validation(Rent rate must be positive number)
         if data['rent_rate'] <= 0:
             return {"error": "Rent rate must be a positive number"}, 400
+        
+        # Category-id validation (category_id must exist)
+        if not Category.query.get(data["category_id"]):
+            return {"error": "Invalid category_id — category not found"}, 400
+        
         space = Space(**data)
         db.session.add(space)
         db.session.commit()
@@ -36,13 +47,25 @@ class SpaceRescource (Resource):
     def patch(self, id):
         space = Space.query.filter_by(id=id).first()
         if not space:
-            return {"message": "Space not found"}, 404
+            return {"error": "Space not found"}, 404
 
         data = self.parser.parse_args()
 
         # Rent validation(Rent rate must be positive number)
         if data['rent_rate'] is not None and data['rent_rate'] <= 0:
             return {"error": "Rent rate must be a positive number "}, 400
+        
+        # Name and owner_name validation(must not be empty)
+        if data["name"] is not None and not data["name"].strip():
+            return {"error": "Name cannot be empty"}, 400
+        if data["owner_name"] is not None and not data["owner_name"].strip():
+            return {"error": "Owner name cannot be empty"}, 400
+
+        # Category-id validation if it is provided
+        if data["category_id"] is not None and not Category.query.get(
+            data["category_id"]
+        ):
+            return {"error": "Invalid category_id — category not found"}, 400
 
         # Update only the provided fields in the request
         for key, value in data.items():
@@ -55,7 +78,7 @@ class SpaceRescource (Resource):
     def delete(self, id):
         space = Space.query.filter_by(id=id).first()
         if not space:
-            return {"message": "Space not found"}, 404
+            return {"error": "Space not found"}, 404
 
         db.session.delete(space)
         db.session.commit()
