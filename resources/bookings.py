@@ -3,12 +3,19 @@ from models import db, Booking, Space
 
 class BookingResource(Resource):
     def get (self, booking_id):
+        if not booking_id:
+            bookings = Booking.query.all()
+            return [booking.to_dict() for booking in bookings], 200
+        
         booking= Booking.query.get(booking_id)
         if booking:
             return booking.to_dict(), 200
         else:
             return {"error": "Booking not found"}, 404
         
+    def get_bookings_by_user(self, user_id):
+        bookings = Booking.query.filter_by(user_id=user_id).all()
+        return [booking.to_dict() for booking in bookings], 200
     
     def post(self):
         parser = reqparse.RequestParser()
