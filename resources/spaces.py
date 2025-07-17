@@ -13,15 +13,16 @@ class SpaceResource (Resource):
     parser.add_argument('category_id', type=int, required=True, help="Category ID is required")
 
     def get(self, id=None):
-        if id is None:
+        if id:
+            space = Space.query.get(id)
+            if space:
+             return space.to_dict(), 200
+            return {"error": "Space not found"}, 404
+        else:
             spaces = Space.query.all()
             return [space.to_dict() for space in spaces], 200
-        else:
-            space = Space.query.filter_by(id=id).first()
-            if space:
-                return space.to_dict(), 200
-            return {"error": "Space not found"}, 404
 
+            
     def post(self):
         data = self.parser.parse_args()
 
@@ -84,4 +85,8 @@ class SpaceResource (Resource):
         db.session.commit()
         return {"message": "Space deleted successfully"}, 200
 
-
+#  Resource to Get Spaces by Category
+class SpacesByCategory(Resource):
+    def get(self, category_id):
+        spaces = Space.query.filter_by(category_id=category_id).all()
+        return [space.to_dict() for space in spaces], 200
