@@ -8,7 +8,7 @@ class SignInResource(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument("full_name", required=True, help="full_name is required")
     parser.add_argument("email", required=True, help="email is required")
-    parser.add_argument("password", required=True, help="password is required")
+    parser.add_argument("password_hash", required=True, help="password is required")
 
     def post(self):
         data = self.parser.parse_args()
@@ -23,6 +23,8 @@ class SignInResource(Resource):
             # then generate access token
 
             return {"message": "login successfull", "user": user.to_dict()}, 201
+        else:
+            return {"message": "invalid email or password"}, 403
 
 
 class SignUpResource(Resource):
