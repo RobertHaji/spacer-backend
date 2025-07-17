@@ -6,7 +6,7 @@ from models import db, User
 
 class SignInResource(Resource):
     parser = reqparse.RequestParser()
-    parser.add_argument("full_name", required=True, help="full_name is required")
+    parser.add_argument("name", required=True, help="name is required")
     parser.add_argument("email", required=True, help="email is required")
     parser.add_argument("password_hash", required=True, help="password is required")
 
@@ -30,9 +30,11 @@ class SignInResource(Resource):
 class SignUpResource(Resource):
     parser = reqparse.RequestParser()
 
-    parser.add_argument("full_name", required=True, help="full_name is required")
-    parser.add_argument("email", required=True, help="email is required")
-    parser.add_argument("password_hash", required=True, help="password is required")
+    parser.add_argument("name", type=str, required=True, help="name is required")
+    parser.add_argument("email", type=str, required=True, help="email is required")
+    parser.add_argument(
+        "password_hash", type=str, required=True, help="password is required"
+    )
 
     def post(self):
         data = self.parser.parse_args()
@@ -40,10 +42,12 @@ class SignUpResource(Resource):
         email = User.query.filter_by(email=data["email"]).first()
 
         if email:
-            return {"message": "email address is already taken"}
+            return {"message": "email address is already taken"}, 409
 
         # encrypt the password
         hash = generate_password_hash(data["password_hash"]).decode("utf-8")
+
+        del data["password_hash"]
 
         user = User(**data, password_hash=hash)
 

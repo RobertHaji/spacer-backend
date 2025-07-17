@@ -4,16 +4,17 @@ from sqlalchemy_serializer import SerializerMixin
 from datetime import datetime
 
 naming_convention = {
-    "ix": "ix_%(column_0_label)s",  
-    "uq": "uq_%(table_name)s_%(column_0_name)s",  
-    "ck": "ck_%(table_name)s_%(constraint_name)s",  
-    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",  
-    "pk": "pk_%(table_name)s"
+    "ix": "ix_%(column_0_label)s",
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s",
 }
 
 
 metadata = MetaData(naming_convention=naming_convention)
 db = SQLAlchemy(metadata=metadata)
+
 
 class User(db.Model, SerializerMixin):
     __tablename__ = "users"
@@ -31,15 +32,14 @@ class User(db.Model, SerializerMixin):
 
 
 class Space(db.Model, SerializerMixin):
-
     __tablename__ = "spaces"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.VARCHAR, nullable=False)
     owner_name = db.Column(db.String(), nullable=False)
-    description = db.Column(db.Text, nullable = False)
+    description = db.Column(db.Text, nullable=False)
     rent_rate = db.Column(db.Numeric(10, 2), nullable=False)
-    image_url = db.Column(db.String(), nullable = False)
+    image_url = db.Column(db.String(), nullable=False)
     available = db.Column(db.Boolean, nullable=False, default=True)
     time_available = db.Column(db.String())
     category_id = db.Column(
@@ -66,7 +66,8 @@ class Booking(db.Model, SerializerMixin):
     total_amount = db.Column(db.Numeric(10, 2), nullable=False)
 
     serialize_rules = ("-user.bookings", "-space.bookings")
-    
+
+
 class Category(db.Model, SerializerMixin):
     __tablename__ = "categories"
 
@@ -79,28 +80,27 @@ class Category(db.Model, SerializerMixin):
     deleted_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     user = db.relationship("User", back_populates="categories")
-    spaces = db.relationship("Space", backref="category")
+    spaces = db.relationship("Space", back_populates="category")
 
-    serialize_rules = ("-user.categories",)    
-
+    serialize_rules = ("-user.categories",)
 
 
 class Payment(db.Model, SerializerMixin):
     __tablename__ = "payments"
 
     id = db.Column(db.Integer, primary_key=True)
-    booking_id = db.Column(db.Integer, db.ForeignKey("bookings.id"), nullable=False, unique=True)
+    booking_id = db.Column(
+        db.Integer, db.ForeignKey("bookings.id"), nullable=False, unique=True
+    )
     amount = db.Column(db.Numeric(10, 2), nullable=False)
-    payment_mode = db.Column(db.String(50), nullable=False)  
-    payment_status = db.Column(db.String(20), nullable=False, default="pending")  
+    payment_mode = db.Column(db.String(50), nullable=False)
+    payment_status = db.Column(db.String(20), nullable=False, default="pending")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     booking = db.relationship("Booking", backref="payment")
 
     serialize_rules = ("-booking.payment",)
 
-
-    
 
 class Image(db.Model, SerializerMixin):
     __tablename__ = "images"
@@ -111,11 +111,3 @@ class Image(db.Model, SerializerMixin):
     uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     serialize_rules = ("-space.images",)
-
-   
-
-
-   
-   
-
-    
