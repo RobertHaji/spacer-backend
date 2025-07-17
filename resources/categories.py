@@ -14,7 +14,7 @@ class CategoryResource(Resource):
 
         if id is None:
             categories = Category.query.all()
-            return jsonify([category.to_dict() for category in categories])
+            return jsonify([category.to_dict() for category in categories]) # displayes image in get resource
         else:
             category = Category.query.filter_by(id=id).first()
             if category is None:
@@ -74,3 +74,4 @@ class CategoryResource(Resource):
         db.session.commit()
 
         return {"message": "Category deleted successfully"}, 200
+    
