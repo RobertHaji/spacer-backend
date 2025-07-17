@@ -1,5 +1,4 @@
-from flask_restful import Resource
-from flask import request
+from flask_restful import Resource , reqparse
 from models import db, Booking, Space
 
 class BookingResource(Resource):
@@ -12,31 +11,31 @@ class BookingResource(Resource):
         
     
     def post(self):
-        data = request.get_json('booking')
-        if not data:
-            return {"error":"data must be provided"}, 400
-        
-        if not all(key in data for key in ("user_id", "space_id", "number_of_guests", "date_of_booking", "number_of_hours")):
-            return{"error":"missing required fields"}, 400
-        
-        space = Space.query.get(data.get("space_id"))
+        parser = reqparse.RequestParser()
+        parser.add_argument('user_id', type=int, required=True, help='User ID is required')
+        parser.add_argument('space_id', type=int, required=True, help='Space ID is required')
+        parser.add_argument('number_of_guests', type=int, required=True, help='Number of guests is required')
+        parser.add_argument('date_of_booking', type=str, required=True, help='Date of booking is required')
+        parser.add_argument('number_of_hours', type=int, required=True, help='Number of hours is required')
+        args = parser.parse_args()
+
+        space = Space.query.get(args['space_id'])
         if not space:
             return {"error": "Space not found"}, 404
 
         try:
-            number_of_hours = int(data.get("number_of_hours"))
+            number_of_hours = args['number_of_hours']
             rent_rate = float(space.rent_rate)
             total_amount = rent_rate * number_of_hours
             if number_of_hours <= 0 or rent_rate <= 0:
                 return {"error": "Invalid number of hours or rent rate"}, 400
             booking = Booking(
-                user_id= data.get("user_id"),
-                space_id= data.get("space_id"),
-                number_of_guests= data.get("number_of_guests"),
-                date_of_booking= data.get("date_of_booking"),
-                total_amount= total_amount
-            )    
-
+                user_id=args['user_id'],
+                space_id=args['space_id'],
+                number_of_guests=args['number_of_guests'],
+                date_of_booking=args['date_of_booking'],
+                total_amount=total_amount
+            )
             db.session.add(booking)
             db.session.commit()
             return booking.to_dict(), 201
