@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_restful import Api, Resource
+from flask_restful import Api
 from flask_migrate import Migrate
 from models import db
 from resources.bookings import BookingResource
@@ -20,13 +20,13 @@ migrate = Migrate(app, db)
 api = Api(app)
 
 
-api.add_resource(SpaceResource, '/spaces', '/spaces/<int:id')
-api.add_resource(CategoryResource, '/categories', '/categories/<int:id')
-api.add_resource(BookingResource, '/bookings', '/bookings/<int:id')
-api.add_resource(ImageResource, '/images', '/images/<int:id')
-api.add_resource(UserResource, '/users', '/users/<int:id')
-api.add_resource(SignInResource, '/users', '/users/<int:id')
-api.add_resource(SignUpResource, '/users', '/users/<int:id')
+api.add_resource(SpaceResource, '/spaces','/spaces/<int:id')
+api.add_resource(CategoryResource, '/categories','/categories/<int:id')
+api.add_resource(BookingResource, '/bookings','/bookings/<int:id',"/users/<int:user_id>/bookings")
+api.add_resource(ImageResource, '/images','/images/<int:id')
+api.add_resource(UserResource, '/users','/users/<int:id')
+api.add_resource(SignInResource, '/users','/users/<int:id')
+api.add_resource(SignUpResource, '/users','/users/<int:id')
 
 
 
