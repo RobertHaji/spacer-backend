@@ -40,7 +40,21 @@ class SignUpResource(Resource):
             return {"message": "email address is already taken"}
         
         #encrypt the password 
-        
+
+        user = User (**data)
+
+        db.session.add(user)
+        db.session.commit()
+
+        #generate access Token
+
+        #send email
+
+        return{
+            "message": "account created successful",
+            "user": user.to_dict()
+        }
+
     
 
     
