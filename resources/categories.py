@@ -27,8 +27,11 @@ class CategoryResource(Resource):
 
         if not data.get("name"):
             return {"message": "Category name is required"}, 400
+        if not data.get("image_url"):
+            return {"message": "Image URL is required"}, 400
 
-        category = Category(name=data["name"], user_id=user_id)
+
+        category = Category(name=data["name"], image_url=data["image_url"], user_id=user_id)
         db.session.add(category)
         db.session.commit()
 
@@ -45,8 +48,12 @@ class CategoryResource(Resource):
 
         if not data.get("name"):
             return {"message": "Category name is required"}, 400
+        if not data.get("image_url"):
+            return {"message": "Image URL is required"}, 400
+
 
         category.name = data["name"]
+        category.image_url = data["image_url"]
         db.session.commit()
 
         return {
