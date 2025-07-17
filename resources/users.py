@@ -6,7 +6,6 @@ from models import db, User
 
 class SignInResource(Resource):
     parser = reqparse.RequestParser()
-    parser.add_argument("name", required=True, help="name is required")
     parser.add_argument("email", required=True, help="email is required")
     parser.add_argument("password_hash", required=True, help="password is required")
 
