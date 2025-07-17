@@ -3,19 +3,20 @@ from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import Category, db
 
+
 class CategoryResource(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument("name", type=str, required=True, help="Category name is required")
     parser.add_argument("image_url", type=str, required=True, help="Image URL is required")
     @jwt_required()
     def get(self, id=None):
-        user_id = get_jwt_identity()
+        # user_id = get_jwt_identity()
 
         if id is None:
-            categories = Category.query.filter_by(user_id=user_id).all()
+            categories = Category.query.all()
             return jsonify([category.to_dict() for category in categories])
         else:
-            category = Category.query.filter_by(id=id, user_id=user_id).first()
+            category = Category.query.filter_by(id=id).first()
             if category is None:
                 return {"message": "Category not found"}, 404
             return jsonify(category.to_dict())
@@ -58,7 +59,7 @@ class CategoryResource(Resource):
 
         return {
             "message": "Category updated successfully",
-            "category": category.to_dict()
+            "category": category.to_dict(),
         }, 200
 
     @jwt_required()

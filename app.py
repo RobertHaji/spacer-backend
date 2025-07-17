@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_restful import Api
 from flask_migrate import Migrate
@@ -7,17 +8,27 @@ from resources.categories import CategoryResource
 from resources.spaces import SpaceResource,SpacesByCategory
 from resources.users import UserResource,SignInResource,SignUpResource
 from resources.images import ImageResource
+from flask_jwt_extended import JWTManager
+from dotenv import load_dotenv
+from flask_bcrypt import Bcrypt
 
-# import os
+load_dotenv()
+
 app = Flask(__name__)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///spacer.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
+
+# Setup the Flask-JWT-Extended extension
+app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET")
+jwt = JWTManager(app)
+bcrypt = Bcrypt(app)
 
 db.init_app(app)
 migrate = Migrate(app, db)
 api = Api(app)
+
 
 @app.route("/")
 def index():
