@@ -4,7 +4,7 @@ from flask_migrate import Migrate
 from models import db
 from resources.bookings import BookingResource, BookingListResource, UserBookingsResource
 from resources.categories import CategoryResource
-from resources.spaces import SpaceResource
+from resources.spaces import SpaceResource,SpacesByCategory
 from resources.users import UserResource,SignInResource,SignUpResource
 from resources.images import ImageResource
 
@@ -23,7 +23,8 @@ api = Api(app)
 def index():
     return {"message": "Welcome to Spacer API!"}
 
-api.add_resource(SpaceResource, '/categoty_id/spaces', '/spaces/<int:id>')
+api.add_resource(SpaceResource, "/spaces", "/spaces/<int:id>")
+api.add_resource(SpacesByCategory, "/categories/<int:category_id>/spaces")
 api.add_resource(CategoryResource, '/categories', '/categories/<int:id>')
 api.add_resource(BookingListResource, '/bookings')  # gets all the bookings and posts a new booking
 api.add_resource(BookingResource, '/bookings/<int:booking_id>')  # gets a single specific booking.
