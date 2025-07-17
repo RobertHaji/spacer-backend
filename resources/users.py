@@ -54,6 +54,16 @@ class SignUpResource(Resource):
             "message": "account created successful",
             "user": user.to_dict()
         }
+    
+
+class UserResource(Resource):
+    def get(self):
+        data = User.query.all()
+        result = []
+        for user in data:
+            result.append(user.to_dict())
+            
+        return result
 
     
 
