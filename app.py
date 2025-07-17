@@ -19,14 +19,17 @@ db.init_app(app)
 migrate = Migrate(app, db)
 api = Api(app)
 
+@app.route("/")
+def index():
+    return {"message": "Welcome to Spacer API!"}
 
-api.add_resource(SpaceResource, '/spaces','/spaces/<int:id')
-api.add_resource(CategoryResource, '/categories','/categories/<int:id')
-api.add_resource(BookingResource, '/bookings','/bookings/<int:id',"/users/<int:user_id>/bookings")
-api.add_resource(ImageResource, '/images','/images/<int:id')
-api.add_resource(UserResource, '/users','/users/<int:id')
-api.add_resource(SignInResource, '/users','/users/<int:id')
-api.add_resource(SignUpResource, '/users','/users/<int:id')
+api.add_resource(SpaceResource, '/categoty_id/spaces', '/spaces/<int:id>')
+api.add_resource(CategoryResource, '/categories', '/categories/<int:id>')
+api.add_resource(BookingResource, '/bookings', '/bookings/<int:id>',"/users/<int:user_id>/bookings")
+api.add_resource(ImageResource, '/images', '/images/<int:id>')
+api.add_resource(UserResource, '/users', '/users/<int:id>')
+api.add_resource(SignInResource, '/signin')
+api.add_resource(SignUpResource, '/signup')
 
 
 
