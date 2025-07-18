@@ -8,7 +8,7 @@ class CategoryResource(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument("name", type=str, required=True, help="Category name is required")
     parser.add_argument("image_url", type=str, required=True, help="Image URL is required")
-    @jwt_required()
+   # @jwt_required()
     def get(self, id=None):
         # user_id = get_jwt_identity()
 
