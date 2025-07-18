@@ -11,7 +11,6 @@ naming_convention = {
     "pk": "pk_%(table_name)s",
 }
 
-
 metadata = MetaData(naming_convention=naming_convention)
 db = SQLAlchemy(metadata=metadata)
 

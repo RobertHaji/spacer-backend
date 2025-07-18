@@ -1,5 +1,6 @@
 from flask_restful import Resource, reqparse
 from models import db, Space, Category
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 class SpaceResource (Resource):
     parser = reqparse.RequestParser()
@@ -22,7 +23,7 @@ class SpaceResource (Resource):
             spaces = Space.query.all()
             return [space.to_dict() for space in spaces], 200
 
-            
+    @jwt_required       
     def post(self):
         data = self.parser.parse_args()
 
@@ -44,7 +45,8 @@ class SpaceResource (Resource):
         db.session.add(space)
         db.session.commit()
         return {"message": "Space successfully created", "space": space.to_dict()}, 201
-
+    
+    @jwt_required
     def patch(self, id):
         space = Space.query.filter_by(id=id).first()
         if not space:
@@ -75,7 +77,8 @@ class SpaceResource (Resource):
 
         db.session.commit()
         return {"message": "Update successful", "space": space.to_dict()}, 200
-
+    
+    @jwt_required
     def delete(self, id):
         space = Space.query.filter_by(id=id).first()
         if not space:
