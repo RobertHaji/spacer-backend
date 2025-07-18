@@ -52,7 +52,7 @@ class Space(db.Model, SerializerMixin):
     category = db.relationship("Category", back_populates="spaces")
     images = db.relationship("Image", backref="space", cascade="all, delete-orphan")
 
-    serialize_rules = ("-bookings.space", "-category.spaces")
+    serialize_rules = ("-bookings.space", "-category.spaces", "-images.space")
 
 
 class Booking(db.Model, SerializerMixin):
@@ -81,7 +81,7 @@ class Category(db.Model, SerializerMixin):
     user = db.relationship("User", back_populates="categories")
     spaces = db.relationship("Space", back_populates="category")
 
-    serialize_rules = ("-user.categories",)
+    serialize_rules = ("-user.categories", "-spaces.category")
 
 
 class Payment(db.Model, SerializerMixin):
