@@ -54,7 +54,32 @@ class Space(db.Model, SerializerMixin):
     category = db.relationship("Category", back_populates="spaces")
     images = db.relationship("Image", backref="space", cascade="all, delete-orphan")
 
-    serialize_rules = ("-bookings.space", "-category.spaces", "-images.space", "-users.spaces")
+    serialize_rules = (
+        "-bookings.space",
+        "-category.spaces",
+        "-images.space",
+        "-users.spaces",
+    )
+
+    def to_json(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "owner_name": self.owner_name,
+            "description": self.description,
+            "rent_rate": float(self.rent_rate),
+            "image_url": self.image_url,
+            "available": self.available,
+            "time_available": self.time_available,
+            "category_id": self.category_id,
+            "user_id": self.user_id,
+            "created_at": self.created_at.isoformat()
+            if self.created_at
+            else None,  # Convert datetime to string
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "deleted_at": self.deleted_at.isoformat() if self.deleted_at else None,
+            "category_name": self.category.name if self.category else None,
+        }
 
 
 class Booking(db.Model, SerializerMixin):

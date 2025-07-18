@@ -20,7 +20,7 @@ def admin_required():
                 if claims.get("role") == "admin":
                     return fn(*args, **kwargs)
                 else:
-                    return {"message": "Unauthorized request"}, 403
+                    return {"message": "Only Admin can perform this request"}, 403
             except Exception as e:
                 print(e)
                 return {"message": str(e)}, 401

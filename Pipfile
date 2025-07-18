@@ -10,8 +10,8 @@ flask-sqlalchemy = "*"
 sqlalchemy-serializer = "*"
 flask-bcrypt = "*"
 flask-jwt-extended = "*"
-python-dotenv = "*"
 flask-restful = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
