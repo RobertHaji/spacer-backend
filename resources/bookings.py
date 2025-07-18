@@ -95,8 +95,11 @@ class BookingListResource(Resource):
 class UserBookingsResource(Resource):
     @jwt_required()
     def get(self, user_id):
-        current_user = get_jwt_identity()
+        present_user = get_jwt_identity()
+        if not present_user:
+            return {"error": "Unauthorized"}, 401
+        current_user = int(present_user)
         if current_user != user_id:
-            return {"error": "Unauthorized"}, 403
+           return {"error": 'Unauthorized'}, 403
         bookings = Booking.query.filter_by(user_id=user_id).all()
         return [b.to_dict() for b in bookings], 200
