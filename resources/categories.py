@@ -1,8 +1,7 @@
 from flask import jsonify
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import Category, db
-
+from models import Category, db, User
 
 class CategoryResource(Resource):
     parser = reqparse.RequestParser()
@@ -27,6 +26,10 @@ class CategoryResource(Resource):
     @jwt_required()
     def post(self):
         user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if not user or not user.is_admin:  
+            return {"message": "Admin access required"}, 403
+
         data = self.parser.parse_args()
 
         if not data.get("name"):
@@ -45,6 +48,10 @@ class CategoryResource(Resource):
     @jwt_required()
     def patch(self, id):
         user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if not user or not user.is_admin:  
+            return {"message": "Admin access required"}, 403
+
         data = self.parser.parse_args()
 
         category = Category.query.filter_by(id=id, user_id=user_id).first()
@@ -68,6 +75,10 @@ class CategoryResource(Resource):
     @jwt_required()
     def delete(self, id):
         user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if not user or not user.is_admin:  
+            return {"message": "Admin access required"}, 403
+
         category = Category.query.filter_by(id=id, user_id=user_id).first()
 
         if category is None:
