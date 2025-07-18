@@ -4,6 +4,8 @@ from flask_jwt_extended import create_access_token
 
 from models import db, User
 
+from utils import admin_required
+
 
 class SignInResource(Resource):
     parser = reqparse.RequestParser()
@@ -21,7 +23,9 @@ class SignInResource(Resource):
         # validate password
         if check_password_hash(user.password_hash, data["password_hash"]):
             # then generate access token
-            access_token = create_access_token(identity=str(user.id))
+            access_token = create_access_token(
+                identity=str(user.id), additional_claims={"role": user.role}
+            )
 
             return {
                 "message": "login successfull",
@@ -60,7 +64,9 @@ class SignUpResource(Resource):
         db.session.commit()
 
         # generate access Token
-        access_token = create_access_token(identity=user.id)
+        access_token = create_access_token(
+            identity=user.id, additional_claims={"role": user.role}
+        )
 
         # send email
 
@@ -72,6 +78,7 @@ class SignUpResource(Resource):
 
 
 class UserResource(Resource):
+    @admin_required()
     def get(self, id=None):
         if id is None:
             data = User.query.all()
