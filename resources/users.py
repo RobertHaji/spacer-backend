@@ -21,7 +21,7 @@ class SignInResource(Resource):
         # validate password
         if check_password_hash(user.password_hash, data["password_hash"]):
             # then generate access token
-            access_token = create_access_token(identity=user.id)
+            access_token = create_access_token(identity=str(user.id))
 
             return {
                 "message": "login successfull",
