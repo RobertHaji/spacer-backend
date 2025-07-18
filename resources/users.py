@@ -72,13 +72,13 @@ class SignUpResource(Resource):
 
 
 class UserResource(Resource):
-    def get(self, user_id=None):
-        if user_id is None:
+    def get(self, id=None):
+        if id is None:
             data = User.query.all()
             result = [user.to_dict() for user in data]
             return result
         else:
-            user = User.query.get(user_id)
+            user = User.query.get(id)
             if not user:
                 return {"message": "User not found"}, 404
             return user.to_dict()
