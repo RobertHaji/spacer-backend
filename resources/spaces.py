@@ -1,6 +1,7 @@
 from flask_restful import Resource, reqparse
 from models import db, Space, Category
-from flask_jwt_extended import jwt_required, get_jwt_identity
+
+from utils import admin_required
 
 
 class SpaceResource(Resource):
@@ -18,8 +19,12 @@ class SpaceResource(Resource):
     parser.add_argument(
         "image_url", type=str, required=True, help="Image URL is required"
     )
-    parser.add_argument("available", type=bool, required=False)
-    parser.add_argument("time_available", type=str, required=False)
+    parser.add_argument(
+        "available", type=bool, required=False, help="time available is required"
+    )
+    parser.add_argument(
+        "time_available", type=str, required=False, help="time available is required"
+    )
     parser.add_argument(
         "category_id", type=int, required=True, help="Category ID is required"
     )
@@ -28,15 +33,15 @@ class SpaceResource(Resource):
         if id:
             space = Space.query.get(id)
             if space:
-                return space.to_dict(), 200
+                return space.to_json(), 200
             return {"error": "Space not found"}, 404
         else:
             spaces = Space.query.all()
-            return [space.to_dict() for space in spaces], 200
+            return [space.to_json() for space in spaces], 200
 
-    @jwt_required
+    # @jwt_required
+    @admin_required()
     def post(self):
-        user_id = get_jwt_identity()
         data = self.parser.parse_args()
 
         # Name and owner_name validation(must not be empty)
@@ -53,12 +58,12 @@ class SpaceResource(Resource):
         if not Category.query.get(data["category_id"]):
             return {"error": "Invalid category_id — category not found"}, 400
 
-        space = Space(**data, user_id=user_id)
+        space = Space(**data)
         db.session.add(space)
         db.session.commit()
-        return {"message": "Space successfully created", "space": space.to_dict()}, 201
 
-    @jwt_required
+        return {"message": "Space successfully created", "space": space.to_json()}, 201
+
     def patch(self, id):
         space = Space.query.filter_by(id=id).first()
         if not space:
@@ -88,9 +93,9 @@ class SpaceResource(Resource):
                 setattr(space, key, value)
 
         db.session.commit()
-        return {"message": "Update successful", "space": space.to_dict()}, 200
+        return {"message": "Update successful", "space": space.to_json()}, 200
 
-    @jwt_required
+    @admin_required()
     def delete(self, id):
         space = Space.query.filter_by(id=id).first()
         if not space:
@@ -105,4 +110,4 @@ class SpaceResource(Resource):
 class SpacesByCategory(Resource):
     def get(self, category_id):
         spaces = Space.query.filter_by(category_id=category_id).all()
-        return [space.to_dict() for space in spaces], 200
+        return [space.to_json() for space in spaces], 200
