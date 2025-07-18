@@ -44,15 +44,17 @@ class Space(db.Model, SerializerMixin):
     category_id = db.Column(
         db.Integer, db.ForeignKey("categories.id", ondelete="cascade"), nullable=False
     )
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
     deleted_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    user = db.relationship("User", backref="spaces")
     bookings = db.relationship("Booking", backref="space")
     category = db.relationship("Category", back_populates="spaces")
     images = db.relationship("Image", backref="space", cascade="all, delete-orphan")
 
-    serialize_rules = ("-bookings.space", "-category.spaces", "-images.space")
+    serialize_rules = ("-bookings.space", "-category.spaces", "-images.space", "-users.spaces")
 
 
 class Booking(db.Model, SerializerMixin):
@@ -62,6 +64,7 @@ class Booking(db.Model, SerializerMixin):
     space_id = db.Column(db.Integer, db.ForeignKey("spaces.id"), nullable=False)
     number_of_guests = db.Column(db.Integer, nullable=False)
     date_of_booking = db.Column(db.DateTime, default=datetime.utcnow)
+    number_of_hours = db.Column(db.Integer, nullable=False, default=1)
     total_amount = db.Column(db.Numeric(10, 2), nullable=False)
 
     serialize_rules = ("-user.bookings", "-space.bookings")
