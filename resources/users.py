@@ -42,7 +42,8 @@ class SignUpResource(Resource):
     parser.add_argument("name", type=str, required=True, help="name is required")
     parser.add_argument("email", type=str, required=True, help="email is required")
     parser.add_argument(
-        "password_hash", type=str, required=True, help="password is required"
+        "password_hash", type=str,
+          required=True, help="password is required"
     )
 
     def post(self):
@@ -65,7 +66,7 @@ class SignUpResource(Resource):
 
         # generate access Token
         access_token = create_access_token(
-            identity=user.id, additional_claims={"role": user.role}
+            identity=str(user.id), additional_claims={"role": user.role}
         )
 
         # send email
