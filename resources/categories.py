@@ -6,13 +6,11 @@ from models import Category, db
 
 class CategoryResource(Resource):
     parser = reqparse.RequestParser()
-    parser.add_argument(
-        "name", type=str, required=True, help="Category name is required"
-    )
-    parser.add_argument(
-        "image_url", type=str, required=True, help="Image URL is required"
-    )
+    parser.add_argument("name", type=str, required=True, help="Category name is required")
+    parser.add_argument("image_url", type=str, required=True, help="Image URL is required")
+    
     def get(self, id=None):
+       
 
         if id is None:
             categories = Category.query.all()
@@ -25,6 +23,7 @@ class CategoryResource(Resource):
                 return {"message": "Category not found"}, 404
             return jsonify(category.to_dict())
 
+#creats new category
     @jwt_required()
     def post(self):
         user_id = get_jwt_identity()
@@ -42,7 +41,7 @@ class CategoryResource(Resource):
         db.session.commit()
 
         return {"message": "Category created successfully"}, 201
-
+# update category by id
     @jwt_required()
     def patch(self, id):
         user_id = get_jwt_identity()
@@ -65,7 +64,7 @@ class CategoryResource(Resource):
             "message": "Category updated successfully",
             "category": category.to_dict(),
         }, 200
-
+# deletes entire category by id 
     @jwt_required()
     def delete(self, id):
         user_id = get_jwt_identity()
