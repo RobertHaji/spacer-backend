@@ -1,19 +1,10 @@
 from flask import request
 from flask_restful import Resource
-from flask_jwt_extended import jwt_required
 from models import db, Image, Space
 from utils import admin_required
 
 
 class ImageListResource(Resource):
-    def get(self):
-        """Public: Get all images."""
-        images = Image.query.all()
-        return {
-            "images": [serialize_model(img) for img in images]
-        }, 200
-
-    @jwt_required()
     @admin_required()
     def post(self):
         """Admin only: Add a new image."""
@@ -54,7 +45,7 @@ class ImageResource(Resource):
             return {"error": "Image not found"}, 404
         return serialize_model(image), 200
 
-    @jwt_required()
+    
     @admin_required()
     def delete(self, image_id):
         """Admin only: Delete an image by ID."""
