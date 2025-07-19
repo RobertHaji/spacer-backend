@@ -31,21 +31,17 @@ class ImageListResource(Resource):
             db.session.rollback()
             return {"error": f"Database error: {str(e)}"}, 500
 
-        return {
-            "message": "Image uploaded successfully",
-            "image": serialize_model(image)
-        }, 201
+        return {"message": "Image uploaded successfully", "image": image.to_dict()}, 201
 
 
 class ImageResource(Resource):
-    def get(self, image_id):
+    def get(self, id):
         """Public: Get a single image by ID."""
-        image = Image.query.get(image_id)
+        image = Image.query.filter_by(id=id).first()
         if not image:
             return {"error": "Image not found"}, 404
-        return serialize_model(image), 200
+        return image.to_dict(), 200
 
-    
     @admin_required()
     def delete(self, image_id):
         """Admin only: Delete an image by ID."""
