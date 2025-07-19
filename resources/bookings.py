@@ -2,10 +2,14 @@ from flask_restful import Resource, reqparse
 from models import db, Booking, Space
 from datetime import datetime
 from flask_jwt_extended import jwt_required, get_jwt_identity
-
+from utils import admin_required
 
 class BookingResource(Resource):
+    @jwt_required()
     def get(self, booking_id):
+        user_id = get_jwt_identity()
+        if not user_id:
+            return {"error": "Unauthorized"}, 401
         booking = Booking.query.get(booking_id)
         if booking:
             return booking.to_dict(), 200
@@ -29,7 +33,9 @@ class BookingResource(Resource):
 
 
 class BookingListResource(Resource):
+    @admin_required()
     def get(self):
+        # Retrieve all bookings. Only accessible by admin users.
         bookings = Booking.query.all()
         return [booking.to_dict() for booking in bookings], 200
 
@@ -96,8 +102,6 @@ class UserBookingsResource(Resource):
     @jwt_required()
     def get(self, user_id):
         present_user = get_jwt_identity()
-        if not present_user:
-            return {"error": "Unauthorized"}, 401
         current_user = int(present_user)
         if current_user != user_id:
            return {"error": 'Unauthorized'}, 403
