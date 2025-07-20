@@ -59,7 +59,7 @@ class BookingListResource(Resource):
 
         parser = reqparse.RequestParser()
         parser.add_argument(
-            "space_id", type=int, required=True, help="Space ID is required"
+            "space_name", type=str, required=True, help="Space name is required"
         )
         parser.add_argument(
             "number_of_guests",
@@ -75,9 +75,11 @@ class BookingListResource(Resource):
         )
         parser.add_argument('number_of_hours', type=int, required=True, help='Number of hours is required')
         args = parser.parse_args()
+    
+        space = Space.query.filter_by(name=args["space_name"]).first()
+        space_id = space.id
 
-        space = Space.query.get(args["space_id"])
-        if not space:
+        if not space_id:
             return {"error": "Space not found"}, 404
 
         try:
@@ -97,7 +99,7 @@ class BookingListResource(Resource):
 
             booking = Booking(
                 user_id=user_id,
-                space_id=args["space_id"],
+                space_id=space_id,
                 number_of_guests=args["number_of_guests"],
                 date_of_booking=date_of_booking,
                 number_of_hours=number_of_hours,
