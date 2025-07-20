@@ -28,9 +28,14 @@ class SignInResource(Resource):
             )
 
             return {
-                "message": "login successfull",
+                "message": "Account created successfully",
                 "access_token": access_token,
-                "user": user.to_dict(),
+                "user": {
+                    "id": user.id,
+                    "name": user.name,
+                    "email": user.email,
+                    "role": user.role
+                }
             }, 201
         else:
             return {"message": "invalid email or password"}, 403
@@ -72,9 +77,14 @@ class SignUpResource(Resource):
         # send email
 
         return {
-            "message": "account created successfully",
+            "message": "Account created successfully",
             "access_token": access_token,
-            "user": user.to_dict(),
+            "user": {
+                "id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "role": user.role
+            }
         }, 201
 
 
