@@ -4,6 +4,19 @@ from datetime import datetime
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from utils import admin_required
 
+
+def format_booking(b):
+    return {
+        "id": b.id,
+        "user_id": b.user_id,
+        "space_id": b.space_id,
+        "date_of_booking": b.date_of_booking.strftime("%Y-%m-%d %H:%M:%S"),
+        "number_of_guests": b.number_of_guests,
+        "number_of_hours": b.number_of_hours,
+        "total_amount": float(b.total_amount),
+        "space_name": b.space.name,
+        "user_name": b.user.name
+    }
 class BookingResource(Resource):
     @jwt_required()
     def get(self, booking_id):
@@ -12,16 +25,17 @@ class BookingResource(Resource):
             return {"error": "Unauthorized"}, 401
         booking = Booking.query.get(booking_id)
         if booking:
-            return booking.to_dict(), 200
+            return format_booking(booking), 200
         return {"error": "Booking not found"}, 404
 
     @jwt_required()
     def delete(self, booking_id):
         user_id = get_jwt_identity()
+        users_id = int(user_id)
         booking = Booking.query.get(booking_id)
         if not booking:
             return {"error": "Booking not found"}, 404
-        if booking.user_id != user_id:
+        if booking.user_id != users_id:
             return {"error": "Unauthorized"}, 403
         try:
             db.session.delete(booking)
@@ -37,7 +51,7 @@ class BookingListResource(Resource):
     def get(self):
         # Retrieve all bookings. Only accessible by admin users.
         bookings = Booking.query.all()
-        return [booking.to_dict() for booking in bookings], 200
+        return [format_booking(b) for b in bookings], 200
 
     @jwt_required()
     def post(self):
@@ -91,7 +105,7 @@ class BookingListResource(Resource):
             )
             db.session.add(booking)
             db.session.commit()
-            return booking.to_dict(), 201
+            return format_booking(booking), 201
 
         except Exception as e:
             db.session.rollback()
@@ -104,6 +118,7 @@ class UserBookingsResource(Resource):
         present_user = get_jwt_identity()
         current_user = int(present_user)
         if current_user != user_id:
-           return {"error": 'Unauthorized'}, 403
+            return {"error": "Unauthorized"}, 403
+
         bookings = Booking.query.filter_by(user_id=user_id).all()
-        return [b.to_dict() for b in bookings], 200
+        return [format_booking(b) for b in bookings], 200
