@@ -11,10 +11,12 @@ from resources.images import ImageResource
 from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
 from flask_bcrypt import Bcrypt
+from flask_cors import CORS
 
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
