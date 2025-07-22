@@ -1,8 +1,8 @@
-"""initial migrations
+"""Initial migration with location field
 
-Revision ID: 336109ac4c55
+Revision ID: 799b87384ba0
 Revises: 
-Create Date: 2025-07-16 22:15:22.105697
+Create Date: 2025-07-23 01:39:21.386883
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '336109ac4c55'
+revision = '799b87384ba0'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -46,12 +46,15 @@ def upgrade():
     sa.Column('rent_rate', sa.Numeric(precision=10, scale=2), nullable=False),
     sa.Column('image_url', sa.String(), nullable=False),
     sa.Column('available', sa.Boolean(), nullable=False),
+    sa.Column('location', sa.String(), nullable=False),
     sa.Column('time_available', sa.String(), nullable=True),
     sa.Column('category_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['category_id'], ['categories.id'], name=op.f('fk_spaces_category_id_categories'), ondelete='cascade'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], name=op.f('fk_spaces_user_id_users')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_spaces'))
     )
     op.create_table('bookings',
@@ -60,6 +63,7 @@ def upgrade():
     sa.Column('space_id', sa.Integer(), nullable=False),
     sa.Column('number_of_guests', sa.Integer(), nullable=False),
     sa.Column('date_of_booking', sa.DateTime(), nullable=True),
+    sa.Column('number_of_hours', sa.Integer(), nullable=False),
     sa.Column('total_amount', sa.Numeric(precision=10, scale=2), nullable=False),
     sa.ForeignKeyConstraint(['space_id'], ['spaces.id'], name=op.f('fk_bookings_space_id_spaces')),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], name=op.f('fk_bookings_user_id_users')),
