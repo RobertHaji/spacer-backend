@@ -1,17 +1,20 @@
 from flask import jsonify
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import Category, db
+from models import Category, db, User
+from utils import admin_required
 
 
 class CategoryResource(Resource):
     parser = reqparse.RequestParser()
-    parser.add_argument("name", type=str, required=True, help="Category name is required")
-    parser.add_argument("image_url", type=str, required=True, help="Image URL is required")
-    
-    def get(self, id=None):
-       
+    parser.add_argument(
+        "name", type=str, required=True, help="Category name is required"
+    )
+    parser.add_argument(
+        "image_url", type=str, required=True, help="Image URL is required"
+    )
 
+    def get(self, id=None):
         if id is None:
             categories = Category.query.all()
             return jsonify(
@@ -23,10 +26,15 @@ class CategoryResource(Resource):
                 return {"message": "Category not found"}, 404
             return jsonify(category.to_dict())
 
-#creats new category
-    @jwt_required()
+    # creats new category
+    # @jwt_required()
+    @admin_required()
     def post(self):
         user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if user.role != "admin":
+            return {"message": "Admin access required"}, 403
+
         data = self.parser.parse_args()
 
         if not data.get("name"):
@@ -41,10 +49,15 @@ class CategoryResource(Resource):
         db.session.commit()
 
         return {"message": "Category created successfully"}, 201
-# update category by id
-    @jwt_required()
+
+    # update category by id
+    @admin_required()
     def patch(self, id):
         user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if user.role != "admin":
+            return {"message": "Admin access required"}, 403
+
         data = self.parser.parse_args()
 
         category = Category.query.filter_by(id=id, user_id=user_id).first()
@@ -64,10 +77,15 @@ class CategoryResource(Resource):
             "message": "Category updated successfully",
             "category": category.to_dict(),
         }, 200
-# deletes entire category by id 
-    @jwt_required()
+
+    # deletes entire category by id
+    @admin_required()
     def delete(self, id):
         user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if user.role != "admin":
+            return {"message": "Admin access required"}, 403
+
         category = Category.query.filter_by(id=id, user_id=user_id).first()
 
         if category is None:
