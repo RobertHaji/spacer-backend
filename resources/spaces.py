@@ -22,6 +22,11 @@ class SpaceResource(Resource):
     parser.add_argument(
         "available", type=bool, required=False, help="time available is required"
     )
+    # Adds location to the parser. Its an update
+    parser.add_argument(
+        "location", type=str, required=True, help="Location is required"
+    )
+
     parser.add_argument(
         "time_available", type=str, required=False, help="time available is required"
     )
