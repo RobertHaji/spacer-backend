@@ -40,6 +40,8 @@ class Space(db.Model, SerializerMixin):
     rent_rate = db.Column(db.Numeric(10, 2), nullable=False)
     image_url = db.Column(db.String(), nullable=False)
     available = db.Column(db.Boolean, nullable=False, default=True)
+    location = db.Column(db.String(), nullable=False, default="unknown")
+
     time_available = db.Column(db.String())
     category_id = db.Column(
         db.Integer, db.ForeignKey("categories.id", ondelete="cascade"), nullable=False
@@ -70,6 +72,7 @@ class Space(db.Model, SerializerMixin):
             "rent_rate": float(self.rent_rate),
             "image_url": self.image_url,
             "available": self.available,
+            "location": self.location,
             "time_available": self.time_available,
             "category_id": self.category_id,
             "user_id": self.user_id,
