@@ -28,15 +28,15 @@ class SignInResource(Resource):
             )
 
             return {
-                "message": "Account created successfully",
+                "message": "Logged in successfully",
                 "access_token": access_token,
                 "user": {
                     "id": user.id,
                     "name": user.name,
                     "email": user.email,
-                    "role": user.role
-                }
-            }, 201
+                    "role": user.role,
+                },
+            }, 200
         else:
             return {"message": "invalid email or password"}, 403
 
@@ -47,8 +47,7 @@ class SignUpResource(Resource):
     parser.add_argument("name", type=str, required=True, help="name is required")
     parser.add_argument("email", type=str, required=True, help="email is required")
     parser.add_argument(
-        "password_hash", type=str,
-          required=True, help="password is required"
+        "password_hash", type=str, required=True, help="password is required"
     )
 
     def post(self):
@@ -83,8 +82,8 @@ class SignUpResource(Resource):
                 "id": user.id,
                 "name": user.name,
                 "email": user.email,
-                "role": user.role
-            }
+                "role": user.role,
+            },
         }, 201
 
 
