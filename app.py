@@ -12,6 +12,7 @@ from resources.categories import CategoryResource
 from resources.spaces import SpaceResource, SpacesByCategory
 from resources.users import UserResource, SignInResource, SignUpResource
 from resources.images import ImageResource
+from resources.stats import StatsResource
 from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
 from flask_bcrypt import Bcrypt
@@ -57,6 +58,7 @@ api.add_resource(ImageResource, "/images", "/images/<int:id>")
 api.add_resource(UserResource, "/users", "/users/<int:id>")
 api.add_resource(SignInResource, "/signin")
 api.add_resource(SignUpResource, "/signup")
+api.add_resource(StatsResource, "/stats")
 
 
 if __name__ == "__main__":
