@@ -106,6 +106,12 @@ class SpaceResource(Resource):
         if not space:
             return {"error": "Space not found"}, 404
 
+        # Delete related bookings first
+
+        if space.bookings:
+         for booking in space.bookings:
+            db.session.delete(booking)
+
         db.session.delete(space)
         db.session.commit()
         return {"message": "Space deleted successfully"}, 200
