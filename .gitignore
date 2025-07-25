@@ -4,5 +4,5 @@
 *.sql
 migrations/
 __pycache__/
-instance/
+instance/spacer.db
 .env
