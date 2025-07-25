@@ -1,6 +1,11 @@
 from flask_restful import Resource, reqparse
 from flask_bcrypt import generate_password_hash, check_password_hash
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import (
+    create_access_token,
+    jwt_required,
+    get_jwt_identity,
+    get_jwt,
+)
 
 from models import db, User
 
@@ -88,14 +93,51 @@ class SignUpResource(Resource):
 
 
 class UserResource(Resource):
-    @admin_required()
+    @jwt_required()
     def get(self, id=None):
+        current_user_id = int(get_jwt_identity())
         if id is None:
+            claims = get_jwt().get("role")
+            if claims != "admin":
+                return {"message": "Admin access required"}, 403
             data = User.query.all()
-            result = [user.to_dict() for user in data]
-            return result
+            return [user.to_dict() for user in data], 200
         else:
+            if int(id) != current_user_id:
+                return {"message": "Unauthorized"}, 401
             user = User.query.get(id)
             if not user:
                 return {"message": "User not found"}, 404
-            return user.to_dict()
+            return user.to_dict(), 200
+
+    @jwt_required()
+    def patch(self, id):
+        current_user_id = int(get_jwt_identity())
+        if int(id) != current_user_id:
+            return {"message": "Unauthorized"}, 401
+
+        parser = reqparse.RequestParser()
+        parser.add_argument(
+            "name", type=str, required=False, help="Name cannot be blank"
+        )
+        parser.add_argument(
+            "email", type=str, required=False, help="Email cannot be blank"
+        )
+        data = parser.parse_args()
+
+        user = User.query.get(id)
+        if not user:
+            return {"message": "User not found"}, 404
+
+        if data["email"] and data["email"] != user.email:
+            existing_user = User.query.filter_by(email=data["email"]).first()
+            if existing_user:
+                return {"message": "Email address is already taken"}, 409
+
+        if data["name"]:
+            user.name = data["name"]
+        if data["email"]:
+            user.email = data["email"]
+
+        db.session.commit()
+        return user.to_dict(), 200
