@@ -94,6 +94,7 @@ class Booking(db.Model, SerializerMixin):
     date_of_booking = db.Column(db.DateTime, default=datetime.utcnow)
     number_of_hours = db.Column(db.Integer, nullable=False, default=1)
     total_amount = db.Column(db.Numeric(10, 2), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     serialize_rules = ("-user.bookings", "-space.bookings")
 
