@@ -2,6 +2,7 @@ from flask_restful import Resource, reqparse
 from models import db, Space, Category
 
 from utils import admin_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
 class SpaceResource(Resource):
@@ -122,3 +123,19 @@ class SpacesByCategory(Resource):
     def get(self, category_id):
         spaces = Space.query.filter_by(category_id=category_id).all()
         return [space.to_json() for space in spaces], 200
+
+class SpaceAvailability(Resource):
+    patch_parser = reqparse.RequestParser()
+    patch_parser.add_argument("available", type=bool, required=True, help="Availability status is required")
+
+    @jwt_required()
+    def patch(self, space_id):
+        space = Space.query.get(space_id)
+        if not space:
+            return {"error": "Space not found"}, 404
+
+        data = self.patch_parser.parse_args()
+        space.available = data["available"]
+
+        db.session.commit()
+        return {"message": "Availability updated", "space": space.to_json()}, 200
