@@ -3,13 +3,10 @@ from flask_restful import Resource
 from models import db, Image, Space
 from utils import admin_required
 
-
 class ImageListResource(Resource):
     @admin_required()
     def post(self):
-        """Admin only: Add a new image."""
         data = request.get_json()
-
         if not data:
             return {"error": "No input data provided"}, 400
 
@@ -33,18 +30,15 @@ class ImageListResource(Resource):
 
         return {"message": "Image uploaded successfully", "image": image.to_dict()}, 201
 
-
 class ImageResource(Resource):
-    def get(self, id):
-        """Public: Get a single image by ID."""
-        image = Image.query.filter_by(id=id).first()
+    def get(self, image_id):
+        image = Image.query.get(image_id)
         if not image:
             return {"error": "Image not found"}, 404
         return image.to_dict(), 200
 
     @admin_required()
     def delete(self, image_id):
-        """Admin only: Delete an image by ID."""
         image = Image.query.get(image_id)
         if not image:
             return {"error": f"Image with ID {image_id} not found"}, 404
@@ -57,3 +51,8 @@ class ImageResource(Resource):
             return {"error": f"Database error: {str(e)}"}, 500
 
         return {"message": f"Image with ID {image_id} deleted successfully"}, 200
+
+class SpaceListResource(Resource):
+    def get(self):
+        spaces = Space.query.all()
+        return [{"id": s.id, "name": s.name} for s in spaces], 200
