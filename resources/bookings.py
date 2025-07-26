@@ -85,7 +85,7 @@ class BookingListResource(Resource):
             existing_booking = Booking.query.filter_by(space_id=space_id, date_of_booking=date_of_booking).first()
             if existing_booking:
                 return {
-                    "error": f"Space is already booked for {date_of_booking.strftime('%Y-%m-%d %H:%M:%S')}. Please choose another date."
+                    "error": f"Space is already booked for {date_of_booking.strftime('%Y-%m-%d')}. Please choose another date."
                 }, 400
 
             total_amount = rent_rate * number_of_hours
