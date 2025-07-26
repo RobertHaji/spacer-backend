@@ -70,27 +70,6 @@ class Space(db.Model, SerializerMixin):
 )
 
 
-    def to_json(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "owner_name": self.owner_name,
-            "description": self.description,
-            "rent_rate": float(self.rent_rate),
-            "image_url": self.image_url,
-            "available": self.available,
-            "location": self.location,
-            "time_available": self.time_available,
-            "category_id": self.category_id,
-            "user_id": self.user_id,
-            "created_at": self.created_at.isoformat()
-            if self.created_at
-            else None,  # Convert datetime to string
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
-            "deleted_at": self.deleted_at.isoformat() if self.deleted_at else None,
-            "category_name": self.category.name if self.category else None,
-        }
-
 
 class Booking(db.Model, SerializerMixin):
     __tablename__ = "bookings"
@@ -106,8 +85,8 @@ class Booking(db.Model, SerializerMixin):
     serialize_rules = (
     "-user.bookings",
     "-space.bookings",
-    "-space.category.spaces",  # optional deeper fix
-    "-space.user.spaces",      # optional deeper fix
+    "-space.category.spaces",  
+    "-space.user.spaces",     
 )
 
 
@@ -130,7 +109,7 @@ class Category(db.Model, SerializerMixin):
     "-user.categories",
     "-spaces.category",
     "-spaces.user.spaces",    
-    "-spaces.bookings.space",  # optional
+    "-spaces.bookings.space",  
 )
 
 
@@ -151,7 +130,7 @@ class Payment(db.Model, SerializerMixin):
 
     serialize_rules = (
     "-booking.payment",
-    "-booking.user.bookings",  # optional, deeper fix
+    "-booking.user.bookings",
 )
 
 
@@ -166,7 +145,7 @@ class Image(db.Model, SerializerMixin):
 
     serialize_rules = (
     "-space.images",
-    "-space.user.spaces",      # optional
-    "-space.category.spaces",  # optional
+    "-space.user.spaces",     
+    "-space.category.spaces",  
 )
 
