@@ -3,6 +3,13 @@ from flask_restful import Resource
 from models import db, Image, Space
 from utils import admin_required
 
+def format_image(image):
+    return {
+        "id": image.id,
+        "url": image.url,
+        "space_id": image.space_id,
+        "created_at": image.created_at.isoformat(),
+    }
 
 class ImageListResource(Resource):
     @admin_required()
@@ -31,7 +38,7 @@ class ImageListResource(Resource):
             db.session.rollback()
             return {"error": f"Database error: {str(e)}"}, 500
 
-        return {"message": "Image uploaded successfully", "image": image.to_dict()}, 201
+        return {"message": "Image uploaded successfully", "image": format_image(image)}, 201
 
 
 class ImageResource(Resource):
@@ -40,7 +47,7 @@ class ImageResource(Resource):
         image = Image.query.filter_by(id=id).first()
         if not image:
             return {"error": "Image not found"}, 404
-        return image.to_dict(), 200
+        return format_image(image), 200
 
     @admin_required()
     def delete(self, image_id):
