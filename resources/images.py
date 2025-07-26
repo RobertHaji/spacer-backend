@@ -8,7 +8,7 @@ def format_image(image):
         "id": image.id,
         "url": image.url,
         "space_id": image.space_id,
-        "created_at": image.created_at.isoformat(),
+        "uploaded_at": image.uploaded_at.isoformat() if image.uploaded_at else None,
     }
 
 class ImageListResource(Resource):
