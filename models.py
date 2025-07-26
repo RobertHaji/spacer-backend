@@ -27,7 +27,12 @@ class User(db.Model, SerializerMixin):
     bookings = db.relationship("Booking", backref="user")
     categories = db.relationship("Category", back_populates="user")
 
-    serialize_rules = ("-bookings.user", "-categories.user")
+    serialize_rules = (
+    "-bookings.user",
+    "-categories.user",
+    "-spaces.user",  
+)
+
 
 
 class Space(db.Model, SerializerMixin):
@@ -57,32 +62,13 @@ class Space(db.Model, SerializerMixin):
     images = db.relationship("Image", backref="space", cascade="all, delete-orphan")
 
     serialize_rules = (
-        "-bookings.space",
-        "-category.spaces",
-        "-images.space",
-        "-users.spaces",
-    )
+    "-bookings.space",
+    "-category.spaces",
+    "-images.space",
+    "-user.spaces",  
+    "-user.categories",  
+)
 
-    def to_json(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "owner_name": self.owner_name,
-            "description": self.description,
-            "rent_rate": float(self.rent_rate),
-            "image_url": self.image_url,
-            "available": self.available,
-            "location": self.location,
-            "time_available": self.time_available,
-            "category_id": self.category_id,
-            "user_id": self.user_id,
-            "created_at": self.created_at.isoformat()
-            if self.created_at
-            else None,  # Convert datetime to string
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
-            "deleted_at": self.deleted_at.isoformat() if self.deleted_at else None,
-            "category_name": self.category.name if self.category else None,
-        }
 
 
 class Booking(db.Model, SerializerMixin):
@@ -96,7 +82,13 @@ class Booking(db.Model, SerializerMixin):
     total_amount = db.Column(db.Numeric(10, 2), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    serialize_rules = ("-user.bookings", "-space.bookings")
+    serialize_rules = (
+    "-user.bookings",
+    "-space.bookings",
+    "-space.category.spaces",  
+    "-space.user.spaces",     
+)
+
 
 
 class Category(db.Model, SerializerMixin):
@@ -113,7 +105,13 @@ class Category(db.Model, SerializerMixin):
     user = db.relationship("User", back_populates="categories")
     spaces = db.relationship("Space", back_populates="category")
 
-    serialize_rules = ("-user.categories", "-spaces.category")
+    serialize_rules = (
+    "-user.categories",
+    "-spaces.category",
+    "-spaces.user.spaces",    
+    "-spaces.bookings.space",  
+)
+
 
 
 class Payment(db.Model, SerializerMixin):
@@ -130,7 +128,11 @@ class Payment(db.Model, SerializerMixin):
 
     booking = db.relationship("Booking", backref="payment")
 
-    serialize_rules = ("-booking.payment",)
+    serialize_rules = (
+    "-booking.payment",
+    "-booking.user.bookings",
+)
+
 
 
 class Image(db.Model, SerializerMixin):
@@ -141,4 +143,9 @@ class Image(db.Model, SerializerMixin):
     url = db.Column(db.String(500), nullable=False)
     uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    serialize_rules = ("-space.images",)
+    serialize_rules = (
+    "-space.images",
+    "-space.user.spaces",     
+    "-space.category.spaces",  
+)
+

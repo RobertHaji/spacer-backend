@@ -4,6 +4,26 @@ from datetime import datetime
 from models import Booking
 from utils import admin_required
 
+def format_space(self):
+    return {
+        "id": self.id,
+        "name": self.name,
+        "owner_name": self.owner_name,
+        "description": self.description,
+        "rent_rate": float(self.rent_rate),
+        "image_url": self.image_url,
+        "available": self.available,
+        "location": self.location,
+        "time_available": self.time_available,
+        "category_id": self.category_id,
+        "user_id": self.user_id,
+        "created_at": self.created_at.isoformat()
+        if self.created_at
+        else None,  
+        "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        "deleted_at": self.deleted_at.isoformat() if self.deleted_at else None,
+        "category_name": self.category.name if self.category else None,
+    }
 def update_space_availability():
     now = datetime.utcnow()
     spaces = Space.query.all()
@@ -53,13 +73,13 @@ class SpaceResource(Resource):
         if id:
             space = Space.query.get(id)
             if space:
-                return space.to_json(), 200
+                return format_space(space), 200
             return {"error": "Space not found"}, 404
         else:
             spaces = Space.query.all()
-            return [space.to_json() for space in spaces], 200
+            return [format_space(space) for space in spaces], 200
 
-    # @jwt_required
+
     @admin_required()
     def post(self):
         data = self.parser.parse_args()
@@ -82,7 +102,7 @@ class SpaceResource(Resource):
         db.session.add(space)
         db.session.commit()
 
-        return {"message": "Space successfully created", "space": space.to_json()}, 201
+        return {"message": "Space successfully created", "space": format_space(space)}, 201
 
     def patch(self, id):
         space = Space.query.filter_by(id=id).first()
@@ -113,7 +133,7 @@ class SpaceResource(Resource):
                 setattr(space, key, value)
 
         db.session.commit()
-        return {"message": "Update successful", "space": space.to_json()}, 200
+        return {"message": "Update successful", "space": format_space(space)}, 200
 
     @admin_required()
     def delete(self, id):
@@ -136,5 +156,4 @@ class SpaceResource(Resource):
 class SpacesByCategory(Resource):
     def get(self, category_id):
         spaces = Space.query.filter_by(category_id=category_id).all()
-        return [space.to_json() for space in spaces], 200
-    
+        return [format_space(space) for space in spaces], 200
