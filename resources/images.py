@@ -20,7 +20,7 @@ class ImageListResource(Resource):
         if not data:
             return {"error": "No input data provided"}, 400
 
-        url = data.get("url")
+        url = data.get("image_url")
         space_id = data.get("space_id")
 
         if not url or not space_id:
