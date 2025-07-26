@@ -8,7 +8,7 @@ def format_image(image):
         "id": image.id,
         "url": image.url,
         "space_id": image.space_id,
-        "created_at": image.created_at.isoformat(),
+        "uploaded_at": image.uploaded_at.isoformat() if image.uploaded_at else None,
     }
 
 class ImageListResource(Resource):
@@ -20,7 +20,7 @@ class ImageListResource(Resource):
         if not data:
             return {"error": "No input data provided"}, 400
 
-        url = data.get("url")
+        url = data.get("image_url")
         space_id = data.get("space_id")
 
         if not url or not space_id:
