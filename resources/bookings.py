@@ -58,42 +58,35 @@ class BookingListResource(Resource):
         user_id = get_jwt_identity()
 
         parser = reqparse.RequestParser()
-        parser.add_argument(
-            "space_name", type=str, required=True, help="Space name is required"
-        )
-        parser.add_argument(
-            "number_of_guests",
-            type=int,
-            required=True,
-            help="Number of guests is required",
-        )
-        parser.add_argument(
-            "date_of_booking",
-            type=str,
-            required=True,
-            help="Date of booking is required",
-        )
-        parser.add_argument('number_of_hours', type=int, required=True, help='Number of hours is required')
+        parser.add_argument("space_name", type=str, required=True, help="Space name is required")
+        parser.add_argument("number_of_guests", type=int, required=True, help="Number of guests is required")
+        parser.add_argument("date_of_booking", type=str, required=True, help="Date of booking is required")
+        parser.add_argument("number_of_hours", type=int, required=True, help="Number of hours is required")
         args = parser.parse_args()
-    
-        space = Space.query.filter_by(name=args["space_name"]).first()
-        space_id = space.id
 
-        if not space_id:
+        space = Space.query.filter_by(name=args["space_name"]).first()
+        if not space:
             return {"error": "Space not found"}, 404
 
+        space_id = space.id
+
         try:
-            date_of_booking = datetime.strptime(
-                args["date_of_booking"], "%Y-%m-%d %H:%M:%S"
-            )
+            date_of_booking = datetime.strptime(args["date_of_booking"], "%Y-%m-%d %H:%M:%S")
         except ValueError:
             return {"error": "Invalid date format. Use YYYY-MM-DD HH:MM:SS"}, 400
 
         try:
-            number_of_hours = args['number_of_hours']
+            number_of_hours = args["number_of_hours"]
             rent_rate = float(space.rent_rate)
             if number_of_hours <= 0 or rent_rate <= 0:
                 return {"error": "Invalid number of hours or rent rate"}, 400
+
+
+            existing_booking = Booking.query.filter_by(space_id=space_id, date_of_booking=date_of_booking).first()
+            if existing_booking:
+                return {
+                    "error": f"Space is already booked for {date_of_booking.strftime('%Y-%m-%d %H:%M:%S')}. Please choose another date."
+                }, 400
 
             total_amount = rent_rate * number_of_hours
 
@@ -103,13 +96,12 @@ class BookingListResource(Resource):
                 number_of_guests=args["number_of_guests"],
                 date_of_booking=date_of_booking,
                 number_of_hours=number_of_hours,
-                total_amount= total_amount
+                total_amount=total_amount
             )
             db.session.add(booking)
+
             if date_of_booking > datetime.utcnow():
                 space.available = False
-
-            db.session.commit()
 
             db.session.commit()
             return format_booking(booking), 201
@@ -117,8 +109,7 @@ class BookingListResource(Resource):
         except Exception as e:
             db.session.rollback()
             return {"error": f"Error creating booking: {str(e)}"}, 400
-
-
+    
 class UserBookingsResource(Resource):
     @jwt_required()
     def get(self, user_id):
