@@ -9,7 +9,7 @@ from resources.bookings import (
     UserBookingsResource,
 )
 from resources.categories import CategoryResource
-from resources.spaces import SpaceResource, SpacesByCategory, SpaceAvailability
+from resources.spaces import SpaceResource, SpacesByCategory #SpaceAvailability
 from resources.users import UserResource, SignInResource, SignUpResource
 from resources.images import ImageResource
 from resources.stats import StatsResource
@@ -59,7 +59,7 @@ api.add_resource(UserResource, "/users", "/users/<int:id>")
 api.add_resource(SignInResource, "/signin")
 api.add_resource(SignUpResource, "/signup")
 api.add_resource(StatsResource, "/stats")
-api.add_resource(SpaceAvailability, "/spaces/<int:space_id>/availability")
+# api.add_resource(SpaceAvailability, "/spaces/<int:space_id>/availability")
 
 if __name__ == "__main__":
     app.run(port=5555)
