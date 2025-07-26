@@ -11,6 +11,14 @@ from models import db, User
 
 from utils import admin_required
 
+def format_user(user):
+    return {
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "role": user.role,
+        "created_at": user.created_at.isoformat(),
+    }
 
 class SignInResource(Resource):
     parser = reqparse.RequestParser()
@@ -101,14 +109,14 @@ class UserResource(Resource):
             if claims != "admin":
                 return {"message": "Admin access required"}, 403
             data = User.query.all()
-            return [user.to_dict() for user in data], 200
+            return [format_user(user) for user in data], 200
         else:
             if int(id) != current_user_id:
                 return {"message": "Unauthorized"}, 401
             user = User.query.get(id)
             if not user:
                 return {"message": "User not found"}, 404
-            return user.to_dict(), 200
+            return format_user(user), 200
 
     @jwt_required()
     def patch(self, id):
@@ -140,4 +148,4 @@ class UserResource(Resource):
             user.email = data["email"]
 
         db.session.commit()
-        return user.to_dict(), 200
+        return format_user(user), 200
