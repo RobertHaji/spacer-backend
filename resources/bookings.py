@@ -106,6 +106,11 @@ class BookingListResource(Resource):
                 total_amount= total_amount
             )
             db.session.add(booking)
+            if date_of_booking > datetime.utcnow():
+                space.available = False
+
+            db.session.commit()
+
             db.session.commit()
             return format_booking(booking), 201
 

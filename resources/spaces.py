@@ -1,10 +1,24 @@
 from flask_restful import Resource, reqparse
 from models import db, Space, Category
-
+from datetime import datetime
+from models import Booking
 from utils import admin_required
-from flask_jwt_extended import jwt_required, get_jwt_identity
 
+def update_space_availability():
+    now = datetime.utcnow()
+    spaces = Space.query.all()
 
+    for space in spaces:
+        booking = Booking.query.filter_by(space_id=space.id).order_by(Booking.date_of_booking.desc()).first()
+
+        if booking and booking.date_of_booking > now:
+            space.available = False
+        else:
+            space.available = True
+
+        print(f"{space.name} → available: {space.available}, category: {space.category_id}")
+
+    db.session.commit()
 class SpaceResource(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument("name", type=str, required=True, help="Name is required")
@@ -123,19 +137,4 @@ class SpacesByCategory(Resource):
     def get(self, category_id):
         spaces = Space.query.filter_by(category_id=category_id).all()
         return [space.to_json() for space in spaces], 200
-
-class SpaceAvailability(Resource):
-    patch_parser = reqparse.RequestParser()
-    patch_parser.add_argument("available", type=bool, required=True, help="Availability status is required")
-
-    @jwt_required()
-    def patch(self, space_id):
-        space = Space.query.get(space_id)
-        if not space:
-            return {"error": "Space not found"}, 404
-
-        data = self.patch_parser.parse_args()
-        space.available = data["available"]
-
-        db.session.commit()
-        return {"message": "Availability updated", "space": space.to_json()}, 200
+    
