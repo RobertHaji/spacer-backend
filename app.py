@@ -11,7 +11,7 @@ from resources.bookings import (
 from resources.categories import CategoryResource
 from resources.spaces import SpaceResource, SpacesByCategory 
 from resources.users import UserResource, SignInResource, SignUpResource
-from resources.images import ImageListResource
+from resources.images import ImageListResource, SpaceImageListResource
 from resources.stats import StatsResource
 from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
@@ -55,6 +55,7 @@ api.add_resource(
     UserBookingsResource, "/users/<int:user_id>/bookings"
 )  # gets all the bookings for a particular user
 api.add_resource(ImageListResource, "/api/images")
+api.add_resource(SpaceImageListResource, "/api/spaces/<int:space_id>/images")
 api.add_resource(UserResource, "/users", "/users/<int:id>")
 api.add_resource(SignInResource, "/signin")
 api.add_resource(SignUpResource, "/signup")

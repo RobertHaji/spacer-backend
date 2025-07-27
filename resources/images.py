@@ -64,3 +64,10 @@ class ImageResource(Resource):
             return {"error": f"Database error: {str(e)}"}, 500
 
         return {"message": f"Image with ID {image_id} deleted successfully"}, 200
+    
+
+class SpaceImageListResource(Resource):
+     def get(self, space_id):
+        # Get all images for a specific space
+        images = Image.query.filter_by(space_id=space_id).all()
+        return {"images": [format_image(image) for image in images]}, 200
