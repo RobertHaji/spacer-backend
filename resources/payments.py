@@ -62,3 +62,69 @@ class PaymentResource(Resource):
                 return {"message": "Error saving payment", "error": str(e)}, 500
 
         return {"message": "STK Push initiated", "data": mpesa_response}, 200
+
+
+class PaymentCallbackResource(Resource):
+    def get(self):
+        return {"message": "Callback endpoint is registered successfully."}, 200
+
+    def post(self):
+        try:
+            # Step 1: Receive JSON data from M-Pesa
+            data = request.get_json()
+            print("Callback received:", data)
+
+            # Step 2: Extract relevant parts of the response
+            stk_callback = data.get("Body", {}).get("stkCallback", {})
+            checkout_id = stk_callback.get("CheckoutRequestID")
+            result_code = stk_callback.get("ResultCode")
+
+            # Step 3: Proceed only if payment was successful
+            if result_code == 0:
+                # Step 4: Extract payment metadata from callback
+                metadata = stk_callback.get("CallbackMetadata", {}).get("Item", [])
+                mpesa_code = next(
+                    (
+                        item["Value"]
+                        for item in metadata
+                        if item["Name"] == "MpesaReceiptNumber"
+                    ),
+                    None,
+                )
+                amount = next(
+                    (item["Value"] for item in metadata if item["Name"] == "Amount"),
+                    None,
+                )
+                phone = next(
+                    (
+                        item["Value"]
+                        for item in metadata
+                        if item["Name"] == "PhoneNumber"
+                    ),
+                    None,
+                )
+
+                # Step 5: Find the payment using the checkout ID
+                payment = Payment.query.filter_by(checkout_id=checkout_id).one_or_none()
+
+                if not payment:
+                    return {"message": "Payment record not found"}, 404
+
+                # Step 6: Update the payment record
+                payment.payment_status = "paid"
+                payment.mpesa_code = mpesa_code
+                payment.amount = amount
+                payment.paying_phone = str(phone)
+                db.session.commit()
+
+                return {"message": "Payment updated successfully"}, 200
+
+            else:
+                # Payment failed or was canceled
+                return {
+                    "message": "Payment not successful",
+                    "status_code": result_code,
+                }, 400
+
+        except Exception as e:
+            return {"message": "Callback processing error", "error": str(e)}, 500
