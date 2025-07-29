@@ -10,14 +10,16 @@ from resources.bookings import (
     BookingValidationResource,
 )
 from resources.categories import CategoryResource
-from resources.spaces import SpaceResource, SpacesByCategory 
+from resources.spaces import SpaceResource, SpacesByCategory
 from resources.users import UserResource, SignInResource, SignUpResource
-from resources.images import ImageListResource, SpaceImageListResource
+from resources.images import ImageListResource, SpaceImageListResource, ImageResource
 from resources.stats import StatsResource
 from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
+
+from resources.payments import PaymentResource, PaymentCallbackResource
 
 load_dotenv()
 
@@ -57,11 +59,14 @@ api.add_resource(
 )  # gets all the bookings for a particular user
 api.add_resource(ImageListResource, "/api/images")
 api.add_resource(SpaceImageListResource, "/api/spaces/<int:space_id>/images")
+api.add_resource(ImageResource, "/api/images/<int:image_id>")
 api.add_resource(UserResource, "/users", "/users/<int:id>")
 api.add_resource(SignInResource, "/signin")
 api.add_resource(SignUpResource, "/signup")
 api.add_resource(StatsResource, "/stats")
-api.add_resource(BookingValidationResource, "/bookings/validate")
+api.add_resource(BookingValidationResource, "/bookings/validate"
+api.add_resource(PaymentResource, "/payments")
+api.add_resource(PaymentCallbackResource, "/payments/callback")
 
 if __name__ == "__main__":
     app.run(port=5555)
