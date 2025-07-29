@@ -7,6 +7,7 @@ from resources.bookings import (
     BookingResource,
     BookingListResource,
     UserBookingsResource,
+    BookingValidationResource,
 )
 from resources.categories import CategoryResource
 from resources.spaces import SpaceResource, SpacesByCategory 
@@ -60,7 +61,7 @@ api.add_resource(UserResource, "/users", "/users/<int:id>")
 api.add_resource(SignInResource, "/signin")
 api.add_resource(SignUpResource, "/signup")
 api.add_resource(StatsResource, "/stats")
-
+api.add_resource(BookingValidationResource, "/bookings/validate")
 
 if __name__ == "__main__":
     app.run(port=5555)
