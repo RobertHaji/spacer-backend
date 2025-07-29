@@ -40,8 +40,8 @@ class Mpesa:
 
     def make_stk_push(self, data):
         amount = data["amount"]
-        phone = data["phone"]
-        desc = data["description"]
+        paying_phone = data["paying_phone"]
+        description = data["description"]
 
         body = {
             "BusinessShortCode": self.business_short_code,
@@ -49,12 +49,12 @@ class Mpesa:
             "Timestamp": self.timestamp,
             "TransactionType": "CustomerPayBillOnline",
             "Amount": amount,
-            "PartyA": phone,
+            "PartyA": paying_phone,
             "PartyB": self.business_short_code,
-            "PhoneNumber": phone,
+            "PhoneNumber": paying_phone,
             "CallBackURL": "https://mydomain.com/pat",
             "AccountReference": "Spacer",
-            "TransactionDesc": desc,
+            "TransactionDesc": description,
         }
 
         token = self.get_access_token()
