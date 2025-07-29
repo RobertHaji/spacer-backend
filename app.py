@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 
-from resources.payments import PaymentResource
+from resources.payments import PaymentResource, PaymentCallbackResource
 
 load_dotenv()
 
@@ -64,6 +64,7 @@ api.add_resource(SignInResource, "/signin")
 api.add_resource(SignUpResource, "/signup")
 api.add_resource(StatsResource, "/stats")
 api.add_resource(PaymentResource, "/payments")
+api.add_resource(PaymentCallbackResource, "/payments/callback")
 
 
 if __name__ == "__main__":

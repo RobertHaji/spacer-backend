@@ -52,7 +52,7 @@ class Mpesa:
             "PartyA": paying_phone,
             "PartyB": self.business_short_code,
             "PhoneNumber": paying_phone,
-            "CallBackURL": "https://mydomain.com/pat",
+            "CallBackURL": "https://mydomain.com/pat/payments/callback",
             "AccountReference": "Spacer",
             "TransactionDesc": description,
         }
