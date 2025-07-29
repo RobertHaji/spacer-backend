@@ -28,11 +28,10 @@ class User(db.Model, SerializerMixin):
     categories = db.relationship("Category", back_populates="user")
 
     serialize_rules = (
-    "-bookings.user",
-    "-categories.user",
-    "-spaces.user",  
-)
-
+        "-bookings.user",
+        "-categories.user",
+        "-spaces.user",
+    )
 
 
 class Space(db.Model, SerializerMixin):
@@ -53,8 +52,8 @@ class Space(db.Model, SerializerMixin):
     )
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
-    deleted_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable = True)
+    deleted_at = db.Column(db.DateTime, default=datetime.utcnow, nullable = True)
 
     user = db.relationship("User", backref="spaces")
     bookings = db.relationship("Booking", backref="space")
@@ -62,13 +61,12 @@ class Space(db.Model, SerializerMixin):
     images = db.relationship("Image", backref="space", cascade="all, delete-orphan")
 
     serialize_rules = (
-    "-bookings.space",
-    "-category.spaces",
-    "-images.space",
-    "-user.spaces",  
-    "-user.categories",  
-)
-
+        "-bookings.space",
+        "-category.spaces",
+        "-images.space",
+        "-user.spaces",
+        "-user.categories",
+    )
 
 
 class Booking(db.Model, SerializerMixin):
@@ -83,12 +81,11 @@ class Booking(db.Model, SerializerMixin):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     serialize_rules = (
-    "-user.bookings",
-    "-space.bookings",
-    "-space.category.spaces",  
-    "-space.user.spaces",     
-)
-
+        "-user.bookings",
+        "-space.bookings",
+        "-space.category.spaces",
+        "-space.user.spaces",
+    )
 
 
 class Category(db.Model, SerializerMixin):
@@ -99,19 +96,18 @@ class Category(db.Model, SerializerMixin):
     image_url = db.Column(db.String(500), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
-    deleted_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable = True)
+    deleted_at = db.Column(db.DateTime, default=datetime.utcnow, nullable = True)
 
     user = db.relationship("User", back_populates="categories")
     spaces = db.relationship("Space", back_populates="category")
 
     serialize_rules = (
-    "-user.categories",
-    "-spaces.category",
-    "-spaces.user.spaces",    
-    "-spaces.bookings.space",  
-)
-
+        "-user.categories",
+        "-spaces.category",
+        "-spaces.user.spaces",
+        "-spaces.bookings.space",
+    )
 
 
 class Payment(db.Model, SerializerMixin):
@@ -122,17 +118,19 @@ class Payment(db.Model, SerializerMixin):
         db.Integer, db.ForeignKey("bookings.id"), nullable=False, unique=True
     )
     amount = db.Column(db.Numeric(10, 2), nullable=False)
-    payment_mode = db.Column(db.String(50), nullable=False)
+    checkout_id = db.Column(db.VARCHAR, nullable=False)
+    mpesa_code = db.Column(db.VARCHAR(10), nullable=False, unique=True)
+    paying_phone = db.Column(db.VARCHAR(12), nullable=False)
+    payment_mode = db.Column(db.String(50), nullable=False, default="mpesa")
     payment_status = db.Column(db.String(20), nullable=False, default="pending")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     booking = db.relationship("Booking", backref="payment")
 
     serialize_rules = (
-    "-booking.payment",
-    "-booking.user.bookings",
-)
-
+        "-booking.payment",
+        "-booking.user.bookings",
+    )
 
 
 class Image(db.Model, SerializerMixin):
@@ -144,8 +142,7 @@ class Image(db.Model, SerializerMixin):
     uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     serialize_rules = (
-    "-space.images",
-    "-space.user.spaces",     
-    "-space.category.spaces",  
-)
-
+        "-space.images",
+        "-space.user.spaces",
+        "-space.category.spaces",
+    )
