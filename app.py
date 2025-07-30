@@ -19,7 +19,7 @@ from dotenv import load_dotenv
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 
-from resources.payments import PaymentResource, PaymentCallbackResource
+from resources.payments import PaymentResource, PaymentCallbackResource, PaymentStatusResource
 
 load_dotenv()
 
@@ -67,6 +67,8 @@ api.add_resource(StatsResource, "/stats")
 api.add_resource(BookingValidationResource, "/bookings/validate")
 api.add_resource(PaymentResource, "/payments")
 api.add_resource(PaymentCallbackResource, "/payments/callback")
+api.add_resource(PaymentStatusResource, "/payments/<string:checkout_id>")
+
 
 if __name__ == "__main__":
     app.run(port=5555)

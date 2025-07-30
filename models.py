@@ -115,7 +115,7 @@ class Payment(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     booking_id = db.Column(
-        db.Integer, db.ForeignKey("bookings.id"), nullable=False, unique=True
+        db.Integer, db.ForeignKey("bookings.id"), nullable=True
     )
     amount = db.Column(db.Numeric(10, 2), nullable=False)
     checkout_id = db.Column(db.VARCHAR, nullable=False)
