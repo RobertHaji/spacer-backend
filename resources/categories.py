@@ -72,7 +72,7 @@ class CategoryResource(Resource):
 
         data = self.parser.parse_args()
 
-        category = Category.query.filter_by(id=id, user_id=user_id).first()
+        category = Category.query.filter_by(id=id, user_id=user_id).first()  # specific admin
         if category is None:
             return {"message": "Category not found"}, 404
 
