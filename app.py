@@ -13,13 +13,18 @@ from resources.categories import CategoryResource
 from resources.spaces import SpaceResource, SpacesByCategory
 from resources.users import UserResource, SignInResource, SignUpResource
 from resources.images import ImageListResource, SpaceImageListResource, ImageResource
+from resources.resetpassword import ResetPasswordResource, CheckEmailResource
 from resources.stats import StatsResource
 from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 
-from resources.payments import PaymentResource, PaymentCallbackResource, PaymentStatusResource
+from resources.payments import (
+    PaymentResource,
+    PaymentCallbackResource,
+    PaymentStatusResource,
+)
 
 load_dotenv()
 
@@ -68,6 +73,8 @@ api.add_resource(BookingValidationResource, "/bookings/validate")
 api.add_resource(PaymentResource, "/payments")
 api.add_resource(PaymentCallbackResource, "/payments/callback")
 api.add_resource(PaymentStatusResource, "/payments/<string:checkout_id>")
+api.add_resource(ResetPasswordResource, "/reset-password")
+api.add_resource(CheckEmailResource, "/check-email")
 
 
 if __name__ == "__main__":
