@@ -17,7 +17,6 @@ class PaymentResource(Resource):
         amount = data.get("amount")
         description = data.get("description")
         mpesa_code = data.get("mpesa_code")
-        booking_id = data.get("booking_id")
 
         # 3. Simple validation
         if not paying_phone or not amount or not description:
@@ -47,7 +46,6 @@ class PaymentResource(Resource):
         if checkout_id:
             try:
                 payment_data = Payment(
-                    booking_id=booking_id,
                     amount=amount,
                     paying_phone=paying_phone,
                     mpesa_code=mpesa_code,
@@ -128,3 +126,18 @@ class PaymentCallbackResource(Resource):
 
         except Exception as e:
             return {"message": "Callback processing error", "error": str(e)}, 500
+
+class PaymentStatusResource(Resource):
+    def get(self, checkout_id):
+        # Find payment with this checkout_id
+        payment = Payment.query.filter_by(checkout_id=checkout_id).first()
+
+        if not payment:
+            return {"error": "Payment not found"}, 404
+
+        return {
+            "payment_status": payment.payment_status,
+            "mpesa_code": payment.mpesa_code,
+            "amount": float(payment.amount),
+            "paying_phone": payment.paying_phone,
+        }, 200
