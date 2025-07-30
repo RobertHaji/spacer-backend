@@ -111,9 +111,15 @@ class BookingListResource(Resource):
     def post(self):
         user_id = get_jwt_identity()
         data = request.get_json()
+        space = Space.query.filter_by(name=data["space_name"]).first()
+        if not space:
+            return {"error": "Space not found"}, 404
+
+        space_id = space.id
+
 
         try:
-            space_id = data["space_id"]
+            space_id = space_id
             number_of_guests = data["number_of_guests"]
             date_of_booking = datetime.strptime(data["date_of_booking"], "%Y-%m-%d %H:%M:%S")
             number_of_hours = data["number_of_hours"]
