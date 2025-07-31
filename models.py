@@ -2,6 +2,7 @@ from sqlalchemy import MetaData
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
 from datetime import datetime
+from sqlalchemy.dialects.postgresql import ENUM
 
 naming_convention = {
     "ix": "ix_%(column_0_label)s",
@@ -14,13 +15,13 @@ naming_convention = {
 metadata = MetaData(naming_convention=naming_convention)
 db = SQLAlchemy(metadata=metadata)
 
-
+role_enum = ENUM("admin", "user", name="role_enum")
 class User(db.Model, SerializerMixin):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.VARCHAR, nullable=False)
     email = db.Column(db.VARCHAR, nullable=False)
-    role = db.Column(db.Enum("admin", "user"), nullable=False, server_default="user")
+    role = db.Column(role_enum, nullable=False, server_default="user")
     password_hash = db.Column(db.VARCHAR, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
