@@ -88,7 +88,9 @@ class SignUpResource(Resource):
 
         # generate access Token
         access_token = create_access_token(
-            identity=str(user.id), additional_claims={"role": user.role}
+            identity=str(user.id),
+            additional_claims={"role": user.role},
+            expires_delta=timedelta(hours=24),
         )
 
         # send email
