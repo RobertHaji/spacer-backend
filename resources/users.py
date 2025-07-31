@@ -10,6 +10,8 @@ from flask_jwt_extended import (
 from models import db, User
 
 from utils import admin_required
+from datetime import timedelta
+
 
 def format_user(user):
     return {
@@ -19,6 +21,7 @@ def format_user(user):
         "role": user.role,
         "created_at": user.created_at.isoformat(),
     }
+
 
 class SignInResource(Resource):
     parser = reqparse.RequestParser()
@@ -37,7 +40,9 @@ class SignInResource(Resource):
         if check_password_hash(user.password_hash, data["password_hash"]):
             # then generate access token
             access_token = create_access_token(
-                identity=str(user.id), additional_claims={"role": user.role}
+                identity=str(user.id),
+                additional_claims={"role": user.role},
+                expires_delta=timedelta(hours=24),
             )
 
             return {
@@ -83,7 +88,9 @@ class SignUpResource(Resource):
 
         # generate access Token
         access_token = create_access_token(
-            identity=str(user.id), additional_claims={"role": user.role}
+            identity=str(user.id),
+            additional_claims={"role": user.role},
+            expires_delta=timedelta(hours=24),
         )
 
         # send email
