@@ -3,6 +3,8 @@ from models import db, Space, Category
 from datetime import datetime
 from models import Booking
 from utils import admin_required
+from flask import request
+
 
 def format_space(self):
     return {
@@ -17,28 +19,36 @@ def format_space(self):
         "time_available": self.time_available,
         "category_id": self.category_id,
         "user_id": self.user_id,
-        "created_at": self.created_at.isoformat()
-        if self.created_at
-        else None,  
+        "created_at": self.created_at.isoformat() if self.created_at else None,
         "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         "deleted_at": self.deleted_at.isoformat() if self.deleted_at else None,
         "category_name": self.category.name if self.category else None,
     }
+
+
 def update_space_availability():
     now = datetime.utcnow()
     spaces = Space.query.all()
 
     for space in spaces:
-        booking = Booking.query.filter_by(space_id=space.id).order_by(Booking.date_of_booking.desc()).first()
+        booking = (
+            Booking.query.filter_by(space_id=space.id)
+            .order_by(Booking.date_of_booking.desc())
+            .first()
+        )
 
         if booking and booking.date_of_booking > now:
             space.available = False
         else:
             space.available = True
 
-        print(f"{space.name} → available: {space.available}, category: {space.category_id}")
+        print(
+            f"{space.name} → available: {space.available}, category: {space.category_id}"
+        )
 
     db.session.commit()
+
+
 class SpaceResource(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument("name", type=str, required=True, help="Name is required")
@@ -76,9 +86,18 @@ class SpaceResource(Resource):
                 return format_space(space), 200
             return {"error": "Space not found"}, 404
         else:
-            spaces = Space.query.all()
-            return [format_space(space) for space in spaces], 200
+            location = request.args.get("location", "").lower()
+            category = request.args.get("category", "").lower()
 
+            query = Space.query.join(Category, Space.category_id == Category.id)
+
+            if location:
+                query = query.filter(Space.location.ilike(f"%{location}%"))
+            if category:
+                query = query.filter(Category.name.ilike(f"%{category}%"))
+
+            spaces = query.all()
+            return [format_space(space) for space in spaces], 200
 
     @admin_required()
     def post(self):
@@ -102,7 +121,10 @@ class SpaceResource(Resource):
         db.session.add(space)
         db.session.commit()
 
-        return {"message": "Space successfully created", "space": format_space(space)}, 201
+        return {
+            "message": "Space successfully created",
+            "space": format_space(space),
+        }, 201
 
     def patch(self, id):
         space = Space.query.filter_by(id=id).first()
@@ -144,8 +166,8 @@ class SpaceResource(Resource):
         # Delete related bookings first
 
         if space.bookings:
-         for booking in space.bookings:
-            db.session.delete(booking)
+            for booking in space.bookings:
+                db.session.delete(booking)
 
         db.session.delete(space)
         db.session.commit()
