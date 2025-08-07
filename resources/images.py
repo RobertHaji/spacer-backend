@@ -3,6 +3,7 @@ from flask_restful import Resource
 from models import db, Image, Space
 from utils import admin_required
 
+
 def format_image(image):
     return {
         "id": image.id,
@@ -11,20 +12,25 @@ def format_image(image):
         "uploaded_at": image.uploaded_at.isoformat() if image.uploaded_at else None,
     }
 
+
 class ImageListResource(Resource):
     @admin_required()
     def post(self):
         """Admin only: Add a new image."""
-        data = request.get_json()
+        if request.content_type.startswith("multipart/form-data"):
+            image_file = request.files.get("image")
+            space_id = request.form.get("space_id")
 
-        if not data:
-            return {"error": "No input data provided"}, 400
+            if not image_file or not space_id:
+                return {"error": "Missing image or space_id"}, 400
+            url = f"https://fake.image.host/{image_file.filename}"
+        else:
+            data = request.get_json()
+            url = data.get("image_url")
+            space_id = data.get("space_id")
 
-        url = data.get("image_url")
-        space_id = data.get("space_id")
-
-        if not url or not space_id:
-            return {"error": "Missing 'url' or 'space_id'"}, 400
+            if not url or not space_id:
+                return {"error": "Missing image_url or space_id"}, 400
 
         space = Space.query.get(space_id)
         if not space:
@@ -38,7 +44,10 @@ class ImageListResource(Resource):
             db.session.rollback()
             return {"error": f"Database error: {str(e)}"}, 500
 
-        return {"message": "Image uploaded successfully", "image": format_image(image)}, 201
+        return {
+            "message": "Image uploaded successfully",
+            "image": format_image(image),
+        }, 201
 
 
 class ImageResource(Resource):
@@ -64,10 +73,10 @@ class ImageResource(Resource):
             return {"error": f"Database error: {str(e)}"}, 500
 
         return {"message": f"Image with ID {image_id} deleted successfully"}, 200
-    
+
 
 class SpaceImageListResource(Resource):
-     def get(self, space_id):
+    def get(self, space_id):
         # Get all images for a specific space
         images = Image.query.filter_by(space_id=space_id).all()
         return {"images": [format_image(image) for image in images]}, 200
