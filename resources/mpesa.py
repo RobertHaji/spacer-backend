@@ -52,7 +52,7 @@ class Mpesa:
             "PartyA": paying_phone,
             "PartyB": self.business_short_code,
             "PhoneNumber": paying_phone,
-            "CallBackURL": "https://spacer-backend-production.up.railway.app/payments/callback",
+            "CallBackURL": "https://92d45397218f.ngrok-free.app/payments/callback",
             "AccountReference": "Spacer",
             "TransactionDesc": description,
         }
