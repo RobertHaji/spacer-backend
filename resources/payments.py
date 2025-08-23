@@ -1,5 +1,6 @@
 from flask_restful import Resource
 from flask import request
+import uuid
 
 from resources.mpesa import Mpesa
 from models import Payment, db
@@ -16,7 +17,7 @@ class PaymentResource(Resource):
         paying_phone = data.get("paying_phone")
         amount = data.get("amount")
         description = data.get("description")
-        mpesa_code = data.get("mpesa_code")
+        temp_code = f"TEMP-{uuid.uuid4().hex[:8].upper()}"[:10]
 
         # 3. Simple validation
         if not paying_phone or not amount or not description:
@@ -36,7 +37,7 @@ class PaymentResource(Resource):
                 "paying_phone": paying_phone,
                 "amount": amount,
                 "description": description,
-                "mpesa_code": mpesa_code,
+                "mpesa_code": temp_code,
             }
         )
 
@@ -48,7 +49,7 @@ class PaymentResource(Resource):
                 payment_data = Payment(
                     amount=amount,
                     paying_phone=paying_phone,
-                    mpesa_code=mpesa_code,
+                    mpesa_code=temp_code,
                     checkout_id=checkout_id,
                     payment_mode="mpesa",
                     payment_status="pending",
