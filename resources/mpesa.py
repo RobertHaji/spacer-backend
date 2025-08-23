@@ -11,10 +11,10 @@ load_dotenv()
 
 
 class Mpesa:
-    # consumer_key = None
-    # consumer_secret = None
+    consumer_key = None
+    consumer_secret = None
     business_short_code = "174379"
-    # timestamp = None
+    timestamp = None
 
     def __init__(self):
         self.consumer_key = os.environ.get("CONSUMER_KEY")
